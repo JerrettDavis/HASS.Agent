@@ -27,6 +27,7 @@ using MediaManager = HASS.Agent.Media.MediaManager;
 using HASS.Agent.Shared.Managers;
 using Newtonsoft.Json.Serialization;
 using System.Windows;
+using MethodInvoker = System.Windows.Forms.MethodInvoker;
 
 namespace HASS.Agent.Functions
 {

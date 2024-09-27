@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
-    <Nullable>disable</Nullable>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
 	<UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -26,12 +26,13 @@
     <FileVersion>2.1.0</FileVersion>
     <RootNamespace>HASS.Agent</RootNamespace>
     <WindowsPackageType>None</WindowsPackageType>
-    <RuntimeIdentifiers>win10-x64;win10-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 	<EnableCoreMrtTooling Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">false</EnableCoreMrtTooling>
 	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+	<LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

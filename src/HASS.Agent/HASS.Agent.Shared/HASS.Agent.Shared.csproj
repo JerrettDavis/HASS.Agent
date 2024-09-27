@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <Platforms>x64;x86</Platforms>
     <AssemblyName>HASS.Agent.Shared</AssemblyName>
     <PackageId>HASS.Agent.Shared</PackageId>
@@ -19,10 +19,11 @@
     <RootNamespace>HASS.Agent.Shared</RootNamespace>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <DebugType>full</DebugType>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
 	<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+	<LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

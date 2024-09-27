@@ -200,7 +200,9 @@ namespace HASS.Agent.Commands
         /// <param name="commands"></param>
         /// <param name="toBeDeletedCommands"></param>
         /// <returns></returns>
-        internal static async Task<bool> StoreAsync(List<ConfiguredCommand> commands, List<ConfiguredCommand> toBeDeletedCommands = null)
+        internal static async Task<bool> StoreAsync(
+            List<ConfiguredCommand> commands,
+            List<ConfiguredCommand>? toBeDeletedCommands = null)
         {
             toBeDeletedCommands ??= new List<ConfiguredCommand>();
 
