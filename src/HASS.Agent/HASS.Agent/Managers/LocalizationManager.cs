@@ -4,153 +4,152 @@ using HASS.Agent.Models.Internal;
 using HASS.Agent.Shared;
 using Serilog;
 
-namespace HASS.Agent.Managers
+namespace HASS.Agent.Managers;
+
+[SuppressMessage("ReSharper", "InconsistentNaming")]
+internal static class LocalizationManager
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    internal static class LocalizationManager
+    /// <summary>
+    /// Loads supported languages, and tries to set the stored language as the current UI language
+    /// </summary>
+    internal static void Initialize()
     {
-        /// <summary>
-        /// Loads supported languages, and tries to set the stored language as the current UI language
-        /// </summary>
-        internal static void Initialize()
+        // load supported languages
+        LoadSupportedUILanguages();
+
+        // set stored
+        SetStoredUILanguage();
+    }
+
+    /// <summary>
+    /// Sets the UI culture to the provided culturecode
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private static void SetStoredUILanguage()
+    {
+        var cultureCode = Variables.AppSettings?.InterfaceLanguage;
+
+        try
         {
-            // load supported languages
-            LoadSupportedUILanguages();
-
-            // set stored
-            SetStoredUILanguage();
-        }
-
-        /// <summary>
-        /// Sets the UI culture to the provided culturecode
-        /// </summary>
-        // ReSharper disable once InconsistentNaming
-        private static void SetStoredUILanguage()
-        {
-            var cultureCode = Variables.AppSettings?.InterfaceLanguage;
-
-            try
+            if (string.IsNullOrWhiteSpace(cultureCode))
             {
-                if (string.IsNullOrWhiteSpace(cultureCode))
-                {
-                    // nothing set, get system culture
-                    var currentCulture = CultureInfo.CurrentUICulture;
-                    cultureCode = currentCulture.Name;
+                // nothing set, get system culture
+                var currentCulture = CultureInfo.CurrentUICulture;
+                cultureCode = currentCulture.Name;
 
-                    Log.Information("[LOCALIZTION] No language setting stored, falling back to the system's UI culture: {culture}", currentCulture.DisplayName);
-                }
-
-                // load the culture (and trigger a not-found exception if it's malformed)
-                var culture = new CultureInfo(cultureCode);
-
-                // check if it's supported
-                if (Variables.SupportedUILanguages.All(x => x.Name != culture.Name))
-                {
-                    Log.Warning("[LOCALIZATION] The selected UI culture isn't yet supported, please help out by translating:");
-                    Log.Warning("[LOCALIZATION] https://www.hass-agent.io/latest/contributing/translating/");
-
-                    SetDefaultUILanguage();
-                    return;
-                }
-
-                // store as current
-                Variables.CurrentUICulture = new SupportedUILanguage(culture);
-
-                // set as interface
-                Thread.CurrentThread.CurrentUICulture = culture;
-                Thread.CurrentThread.CurrentCulture = culture;
-
-                // set on shared
-                AgentSharedBase.SetCulture(culture);
-
-                // done
-                Log.Information("[LOCALIZATION] Selected UI culture: [{code}] {culture}", Thread.CurrentThread.CurrentUICulture.Name, Thread.CurrentThread.CurrentUICulture.DisplayName);
+                Log.Information("[LOCALIZTION] No language setting stored, falling back to the system's UI culture: {culture}", currentCulture.DisplayName);
             }
-            catch (CultureNotFoundException)
+
+            // load the culture (and trigger a not-found exception if it's malformed)
+            var culture = new CultureInfo(cultureCode);
+
+            // check if it's supported
+            if (Variables.SupportedUILanguages.All(x => x.Name != culture.Name))
             {
-                Log.Error("[LOCALIZATION] Unable to set the selected culture '{culture}': {err}", cultureCode, "culture not known");
+                Log.Warning("[LOCALIZATION] The selected UI culture isn't yet supported, please help out by translating:");
+                Log.Warning("[LOCALIZATION] https://www.hass-agent.io/latest/contributing/translating/");
+
                 SetDefaultUILanguage();
+                return;
             }
-            catch (Exception ex)
-            {
-                Log.Error("[LOCALIZATION] Unable to set the selected culture '{culture}': {err}", cultureCode, ex.Message);
-                SetDefaultUILanguage();
-            }
-        }
-
-        /// <summary>
-        /// Tries to change the interface to the provided one
-        /// </summary>
-        /// <param name="cultureCode"></param>
-        internal static void SetNewUILanguage(string cultureCode)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(cultureCode)) return;
-
-                // load the culture (and trigger a not-found exception if it's malformed)
-                var culture = new CultureInfo(cultureCode);
-
-                // check if it's supported
-                if (Variables.SupportedUILanguages.All(x => x.Name != culture.Name))
-                {
-                    Log.Warning("[LOCALIZATION] The new UI culture isn't yet supported, please help out by translating:");
-                    Log.Warning("[LOCALIZATION] https://www.hass-agent.io/latest/contributing/translating/");
-
-                    SetStoredUILanguage();
-                    return;
-                }
-
-                // store as current
-                Variables.CurrentUICulture = new SupportedUILanguage(culture);
-
-                // set as interface
-                Thread.CurrentThread.CurrentUICulture = culture;
-                Thread.CurrentThread.CurrentCulture = culture;
-
-                // set on shared
-                AgentSharedBase.SetCulture(culture);
-
-                // done
-                Log.Information("[LOCALIZATION] New UI culture: [{code}] {culture}", Thread.CurrentThread.CurrentUICulture.Name, Thread.CurrentThread.CurrentUICulture.DisplayName);
-            }
-            catch (CultureNotFoundException)
-            {
-                Log.Error("[LOCALIZATION] Unable to set the new culture '{culture}': {err}", cultureCode, "culture not known");
-                SetDefaultUILanguage();
-            }
-            catch (Exception ex)
-            {
-                Log.Error("[LOCALIZATION] Unable to set the new culture '{culture}': {err}", cultureCode, ex.Message);
-                SetDefaultUILanguage();
-            }
-        }
-        
-        /// <summary>
-        /// Sets the UI to the default language
-        /// </summary>
-        private static void SetDefaultUILanguage()
-        {
-            // set default EN
-            var defaultCulture = new CultureInfo("en");
-            Log.Information("[LOCALIZATION] Setting default: {default}", defaultCulture.DisplayName);
-            Thread.CurrentThread.CurrentUICulture = defaultCulture;
 
             // store as current
-            Variables.CurrentUICulture = new SupportedUILanguage(defaultCulture);
+            Variables.CurrentUICulture = new SupportedUILanguage(culture);
+
+            // set as interface
+            Thread.CurrentThread.CurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+
+            // set on shared
+            AgentSharedBase.SetCulture(culture);
+
+            // done
+            Log.Information("[LOCALIZATION] Selected UI culture: [{code}] {culture}", Thread.CurrentThread.CurrentUICulture.Name, Thread.CurrentThread.CurrentUICulture.DisplayName);
         }
-
-        /// <summary>
-        /// Loads the currently supported UI languages
-        /// </summary>
-        private static void LoadSupportedUILanguages()
+        catch (CultureNotFoundException)
         {
-            var supportedCultureList = new List<string> { "en", "pt-BR", "sl", "es", "nl", "de", "ru", "fr", "pl", "tr" };
+            Log.Error("[LOCALIZATION] Unable to set the selected culture '{culture}': {err}", cultureCode, "culture not known");
+            SetDefaultUILanguage();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("[LOCALIZATION] Unable to set the selected culture '{culture}': {err}", cultureCode, ex.Message);
+            SetDefaultUILanguage();
+        }
+    }
 
-            foreach (var supportedUILanguage in supportedCultureList.Select(supportedCulture => new CultureInfo(supportedCulture)).Select(culture => new SupportedUILanguage(culture)))
+    /// <summary>
+    /// Tries to change the interface to the provided one
+    /// </summary>
+    /// <param name="cultureCode"></param>
+    internal static void SetNewUILanguage(string cultureCode)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(cultureCode)) return;
+
+            // load the culture (and trigger a not-found exception if it's malformed)
+            var culture = new CultureInfo(cultureCode);
+
+            // check if it's supported
+            if (Variables.SupportedUILanguages.All(x => x.Name != culture.Name))
             {
-                Variables.SupportedUILanguages.Add(supportedUILanguage);
+                Log.Warning("[LOCALIZATION] The new UI culture isn't yet supported, please help out by translating:");
+                Log.Warning("[LOCALIZATION] https://www.hass-agent.io/latest/contributing/translating/");
+
+                SetStoredUILanguage();
+                return;
             }
+
+            // store as current
+            Variables.CurrentUICulture = new SupportedUILanguage(culture);
+
+            // set as interface
+            Thread.CurrentThread.CurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+
+            // set on shared
+            AgentSharedBase.SetCulture(culture);
+
+            // done
+            Log.Information("[LOCALIZATION] New UI culture: [{code}] {culture}", Thread.CurrentThread.CurrentUICulture.Name, Thread.CurrentThread.CurrentUICulture.DisplayName);
+        }
+        catch (CultureNotFoundException)
+        {
+            Log.Error("[LOCALIZATION] Unable to set the new culture '{culture}': {err}", cultureCode, "culture not known");
+            SetDefaultUILanguage();
+        }
+        catch (Exception ex)
+        {
+            Log.Error("[LOCALIZATION] Unable to set the new culture '{culture}': {err}", cultureCode, ex.Message);
+            SetDefaultUILanguage();
+        }
+    }
+        
+    /// <summary>
+    /// Sets the UI to the default language
+    /// </summary>
+    private static void SetDefaultUILanguage()
+    {
+        // set default EN
+        var defaultCulture = new CultureInfo("en");
+        Log.Information("[LOCALIZATION] Setting default: {default}", defaultCulture.DisplayName);
+        Thread.CurrentThread.CurrentUICulture = defaultCulture;
+
+        // store as current
+        Variables.CurrentUICulture = new SupportedUILanguage(defaultCulture);
+    }
+
+    /// <summary>
+    /// Loads the currently supported UI languages
+    /// </summary>
+    private static void LoadSupportedUILanguages()
+    {
+        var supportedCultureList = new List<string> { "en", "pt-BR", "sl", "es", "nl", "de", "ru", "fr", "pl", "tr" };
+
+        foreach (var supportedUILanguage in supportedCultureList.Select(supportedCulture => new CultureInfo(supportedCulture)).Select(culture => new SupportedUILanguage(culture)))
+        {
+            Variables.SupportedUILanguages.Add(supportedUILanguage);
         }
     }
 }

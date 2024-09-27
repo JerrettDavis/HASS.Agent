@@ -5,20 +5,19 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HASS.Agent.Enums
+namespace HASS.Agent.Enums;
+
+public enum MediaPlayerState
 {
-    public enum MediaPlayerState
-    {
-        [EnumMember(Value = "off")]
-        Off,
+    [EnumMember(Value = "off")]
+    Off,
 
-        [EnumMember(Value = "idle")]
-        Idle,
+    [EnumMember(Value = "idle")]
+    Idle,
 
-        [EnumMember(Value = "playing")]
-        Playing,
+    [EnumMember(Value = "playing")]
+    Playing,
 
-        [EnumMember(Value = "paused")]
-        Paused
-    }
+    [EnumMember(Value = "paused")]
+    Paused
 }

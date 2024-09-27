@@ -5,52 +5,51 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Sensors;
 
-namespace HASS.Agent.Managers.DeviceSensors
+namespace HASS.Agent.Managers.DeviceSensors;
+
+internal class PedometerSensor : IInternalDeviceSensor
 {
-    internal class PedometerSensor : IInternalDeviceSensor
+    private readonly Pedometer _pedometer;
+
+    public string MeasurementType { get; } = string.Empty;
+    public string UnitOfMeasurement { get; } = string.Empty;
+
+    public bool Available => _pedometer != null;
+    public InternalDeviceSensorType Type => InternalDeviceSensorType.Pedometer;
+    public string Measurement
     {
-        private readonly Pedometer _pedometer;
-
-        public string MeasurementType { get; } = string.Empty;
-        public string UnitOfMeasurement { get; } = string.Empty;
-
-        public bool Available => _pedometer != null;
-        public InternalDeviceSensorType Type => InternalDeviceSensorType.Pedometer;
-        public string Measurement
+        get
         {
-            get
+            if(!Available)
+                return null;
+
+            var totalStepCount = 0;
+
+            var sensorReadings = _pedometer.GetCurrentReadings();
+            if (sensorReadings == null)
+                return null;
+
+            foreach (var sensorReading in sensorReadings)
             {
-                if(!Available)
-                    return null;
+                var attributeCumulativeSteps = $"{sensorReading.Key}CumulativeSteps";
+                _attributes[attributeCumulativeSteps] = sensorReading.Value.CumulativeSteps.ToString();
+                totalStepCount += sensorReading.Value.CumulativeSteps;
 
-                var totalStepCount = 0;
-
-                var sensorReadings = _pedometer.GetCurrentReadings();
-                if (sensorReadings == null)
-                    return null;
-
-                foreach (var sensorReading in sensorReadings)
-                {
-                    var attributeCumulativeSteps = $"{sensorReading.Key}CumulativeSteps";
-                    _attributes[attributeCumulativeSteps] = sensorReading.Value.CumulativeSteps.ToString();
-                    totalStepCount += sensorReading.Value.CumulativeSteps;
-
-                    var attributeCumulativeStepsDuration = $"{sensorReading.Key}CumulativeStepsDuration";
-                    _attributes[attributeCumulativeStepsDuration] = sensorReading.Value.CumulativeStepsDuration.ToString();
-                }
-
-                return totalStepCount.ToString();
+                var attributeCumulativeStepsDuration = $"{sensorReading.Key}CumulativeStepsDuration";
+                _attributes[attributeCumulativeStepsDuration] = sensorReading.Value.CumulativeStepsDuration.ToString();
             }
+
+            return totalStepCount.ToString();
         }
+    }
 
-        public bool IsNumeric { get; } = true;
+    public bool IsNumeric { get; } = true;
 
-        private readonly Dictionary<string, string> _attributes = new();
-        public Dictionary<string, string> Attributes => _attributes;
+    private readonly Dictionary<string, string> _attributes = new();
+    public Dictionary<string, string> Attributes => _attributes;
 
-        public PedometerSensor(Pedometer pedometer)
-        {
-            _pedometer = pedometer;
-        }
+    public PedometerSensor(Pedometer pedometer)
+    {
+        _pedometer = pedometer;
     }
 }

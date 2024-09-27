@@ -6,20 +6,19 @@ using HASS.Agent.Resources.Localization;
 using Serilog;
 using Syncfusion.Windows.Forms;
 
-namespace HASS.Agent.Controls.Configuration
-{
-    public partial class ConfigMediaPlayer : UserControl
-    {
-        public ConfigMediaPlayer()
-        {
-            InitializeComponent();
-        }
+namespace HASS.Agent.Controls.Configuration;
 
-        private void BtnNotificationsReadme_Click(object sender, EventArgs e) => HelperFunctions.LaunchUrl("https://www.hass-agent.io/latest/setup/mediaplayer/");
+public partial class ConfigMediaPlayer : UserControl
+{
+    public ConfigMediaPlayer()
+    {
+        InitializeComponent();
+    }
+
+    private void BtnNotificationsReadme_Click(object sender, EventArgs e) => HelperFunctions.LaunchUrl("https://www.hass-agent.io/latest/setup/mediaplayer/");
         
-        private void ConfigMediaPlayer_Load(object sender, EventArgs e)
-        {
-            LblConnectivityDisabled.Visible = !Variables.AppSettings.LocalApiEnabled && !Variables.AppSettings.MqttEnabled;
-        }
+    private void ConfigMediaPlayer_Load(object sender, EventArgs e)
+    {
+        LblConnectivityDisabled.Visible = !Variables.AppSettings.LocalApiEnabled && !Variables.AppSettings.MqttEnabled;
     }
 }

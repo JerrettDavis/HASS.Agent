@@ -9,95 +9,94 @@ using Microsoft.VisualBasic.Logging;
 using Syncfusion.Windows.Forms;
 using DialogResult = System.Windows.Forms.DialogResult;
 
-namespace HASS.Agent.Controls.Onboarding
+namespace HASS.Agent.Controls.Onboarding;
+
+public partial class OnboardingWelcome : UserControl
 {
-    public partial class OnboardingWelcome : UserControl
+    private ComponentResourceManager _resourceManager;
+    private readonly string _previousCulture = Variables.CurrentUICulture.Name;
+
+    public OnboardingWelcome()
     {
-        private ComponentResourceManager _resourceManager;
-        private readonly string _previousCulture = Variables.CurrentUICulture.Name;
-
-        public OnboardingWelcome()
-        {
-            InitializeComponent(); 
+        InitializeComponent(); 
             
-            BindComboBoxTheme();
+        BindComboBoxTheme();
 
-            _resourceManager = new ComponentResourceManager(GetType());
-        }
+        _resourceManager = new ComponentResourceManager(GetType());
+    }
 
-        private void BindComboBoxTheme() => CbLanguage.DrawItem += ComboBoxTheme.DrawItem;
+    private void BindComboBoxTheme() => CbLanguage.DrawItem += ComboBoxTheme.DrawItem;
 
-        private void OnboardingWelcome_Load(object sender, EventArgs e)
+    private void OnboardingWelcome_Load(object sender, EventArgs e)
+    {
+        // load all languages
+        foreach (var lang in Variables.SupportedUILanguages) CbLanguage.Items.Add(lang.DisplayName);
+
+        // select the current one
+        CbLanguage.SelectedItem = Variables.CurrentUICulture.DisplayName;
+
+        // set devicename
+        TbDeviceName.Text = Variables.AppSettings.DeviceName;
+
+        // focus on devicename
+        ActiveControl = TbDeviceName;
+    }
+
+    internal bool Store(out bool languageChanged)
+    {
+        languageChanged = false;
+
+        // make sure there's a device name
+        if (string.IsNullOrWhiteSpace(TbDeviceName.Text)) TbDeviceName.Text = SharedHelperFunctions.GetSafeDeviceName();
+
+        // sanitize devicename
+        var deviceName = SharedHelperFunctions.GetSafeValue(TbDeviceName.Text);
+
+        // different?
+        if (deviceName != TbDeviceName.Text)
         {
-            // load all languages
-            foreach (var lang in Variables.SupportedUILanguages) CbLanguage.Items.Add(lang.DisplayName);
+            var q = MessageBoxAdv.Show(this, string.Format(Languages.OnboardingWelcome_Store_MessageBox1, deviceName),
+                Variables.MessageBoxTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            // select the current one
-            CbLanguage.SelectedItem = Variables.CurrentUICulture.DisplayName;
-
-            // set devicename
-            TbDeviceName.Text = Variables.AppSettings.DeviceName;
-
-            // focus on devicename
-            ActiveControl = TbDeviceName;
+            if (q != DialogResult.Yes) return false;
         }
 
-        internal bool Store(out bool languageChanged)
+        // store devicename
+        Variables.AppSettings.DeviceName = deviceName;
+
+        // store ui language
+        var uiLanguage = Variables.SupportedUILanguages.Find(x => x.DisplayName == CbLanguage.Text);
+        Variables.AppSettings.InterfaceLanguage = uiLanguage?.Name ?? "en";
+
+        if (uiLanguage?.Name != _previousCulture)
         {
-            languageChanged = false;
-
-            // make sure there's a device name
-            if (string.IsNullOrWhiteSpace(TbDeviceName.Text)) TbDeviceName.Text = SharedHelperFunctions.GetSafeDeviceName();
-
-            // sanitize devicename
-            var deviceName = SharedHelperFunctions.GetSafeValue(TbDeviceName.Text);
-
-            // different?
-            if (deviceName != TbDeviceName.Text)
-            {
-                var q = MessageBoxAdv.Show(this, string.Format(Languages.OnboardingWelcome_Store_MessageBox1, deviceName),
-                    Variables.MessageBoxTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (q != DialogResult.Yes) return false;
-            }
-
-            // store devicename
-            Variables.AppSettings.DeviceName = deviceName;
-
-            // store ui language
-            var uiLanguage = Variables.SupportedUILanguages.Find(x => x.DisplayName == CbLanguage.Text);
-            Variables.AppSettings.InterfaceLanguage = uiLanguage?.Name ?? "en";
-
-            if (uiLanguage?.Name != _previousCulture)
-            {
-                // ui language changed
-                languageChanged = true;
-            }
-
-            // done
-            return true;
+            // ui language changed
+            languageChanged = true;
         }
 
-        private void CbLanguage_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var uiLanguage = Variables.SupportedUILanguages.Find(x => x.DisplayName == CbLanguage.Text);
-            if (uiLanguage == null) return;
+        // done
+        return true;
+    }
 
-            if (uiLanguage.Name == _previousCulture) return;
+    private void CbLanguage_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var uiLanguage = Variables.SupportedUILanguages.Find(x => x.DisplayName == CbLanguage.Text);
+        if (uiLanguage == null) return;
 
-            // set the new language
-            LocalizationManager.SetNewUILanguage(uiLanguage.Name);
+        if (uiLanguage.Name == _previousCulture) return;
 
-            // language changed
-            ReloadUi();
-        }
+        // set the new language
+        LocalizationManager.SetNewUILanguage(uiLanguage.Name);
 
-        private void ReloadUi()
-        {
-            LblInfo1.Text = Languages.OnboardingWelcome_LblInfo1;
-            LblInfo2.Text = Languages.OnboardingWelcome_LblInfo2;
-            LblDeviceName.Text = Languages.OnboardingWelcome_LblDeviceName;
-            LblInterfaceLangauge.Text = Languages.OnboardingWelcome_LblInterfaceLangauge;
-        }
+        // language changed
+        ReloadUi();
+    }
+
+    private void ReloadUi()
+    {
+        LblInfo1.Text = Languages.OnboardingWelcome_LblInfo1;
+        LblInfo2.Text = Languages.OnboardingWelcome_LblInfo2;
+        LblDeviceName.Text = Languages.OnboardingWelcome_LblDeviceName;
+        LblInterfaceLangauge.Text = Languages.OnboardingWelcome_LblInterfaceLangauge;
     }
 }

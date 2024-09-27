@@ -6,24 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Metadata;
 
-namespace HASS.Agent.Enums
+namespace HASS.Agent.Enums;
+
+public enum MediaPlayerRequest
 {
-    public enum MediaPlayerRequest
-    {
-        [Default]
-        [EnumMember(Value = "unknown")]
-        Unknown,
+    [Default]
+    [EnumMember(Value = "unknown")]
+    Unknown,
 
-        [EnumMember(Value = "muted")]
-        Muted,
+    [EnumMember(Value = "muted")]
+    Muted,
 
-        [EnumMember(Value = "volume")]
-        Volume,
+    [EnumMember(Value = "volume")]
+    Volume,
 
-        [EnumMember(Value = "playing")]
-        Playing,
+    [EnumMember(Value = "playing")]
+    Playing,
 
-        [EnumMember(Value = "state")]
-        State
-    }
+    [EnumMember(Value = "state")]
+    State
 }

@@ -1,17 +1,16 @@
 ﻿using System;
 
-namespace HASS.Agent.Shared.Extensions
+namespace HASS.Agent.Shared.Extensions;
+
+/// <summary>
+/// Extension for the DateTime object
+/// </summary>
+public static class DateTimeExtensions
 {
     /// <summary>
-    /// Extension for the DateTime object
+    /// Converts the DateTime object to a timezone-containing string
     /// </summary>
-    public static class DateTimeExtensions
-    {
-        /// <summary>
-        /// Converts the DateTime object to a timezone-containing string
-        /// </summary>
-        /// <param name="datetime"></param>
-        /// <returns></returns>
-        public static string ToTimeZoneString(this DateTime datetime) => $"{datetime.ToUniversalTime():u}";
-    }
+    /// <param name="datetime"></param>
+    /// <returns></returns>
+    public static string ToTimeZoneString(this DateTime datetime) => $"{datetime.ToUniversalTime():u}";
 }

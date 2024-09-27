@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HASS.Agent.Compatibility
-{
-    public interface ICompatibilityTask
-    {
-        public string Name { get; }
+namespace HASS.Agent.Compatibility;
 
-        public abstract Task<(bool, string)> Perform();
-    }
+public interface ICompatibilityTask
+{
+    public string Name { get; }
+
+    public abstract Task<(bool, string)> Perform();
 }

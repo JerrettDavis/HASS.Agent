@@ -1,13 +1,12 @@
-﻿namespace HASS.Agent.Enums
+﻿namespace HASS.Agent.Enums;
+
+public enum Component
 {
-    public enum Component
-    {
-        Commands,
-        HassApi,
-        Mqtt,
-        LocalApi,
-        QuickActions,
-        Sensors,
-        Service
-    }
+    Commands,
+    HassApi,
+    Mqtt,
+    LocalApi,
+    QuickActions,
+    Sensors,
+    Service
 }

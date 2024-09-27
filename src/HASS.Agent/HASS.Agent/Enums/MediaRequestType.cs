@@ -6,21 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Metadata;
 
-namespace HASS.Agent.Enums
+namespace HASS.Agent.Enums;
+
+public enum MediaRequestType
 {
-    public enum MediaRequestType
-    {
-        [Default]
-        [EnumMember(Value = "unknown")]
-        Unknown,
+    [Default]
+    [EnumMember(Value = "unknown")]
+    Unknown,
 
-        [EnumMember(Value = "request")]
-        Request,
+    [EnumMember(Value = "request")]
+    Request,
 
-        [EnumMember(Value = "command")]
-        Command,
+    [EnumMember(Value = "command")]
+    Command,
 
-        [EnumMember(Value = "play_media")]
-        PlayMedia,
-    }
+    [EnumMember(Value = "play_media")]
+    PlayMedia,
 }

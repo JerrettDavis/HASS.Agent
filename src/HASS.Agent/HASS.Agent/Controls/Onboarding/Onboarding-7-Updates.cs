@@ -1,23 +1,22 @@
-﻿namespace HASS.Agent.Controls.Onboarding
+﻿namespace HASS.Agent.Controls.Onboarding;
+
+public partial class OnboardingUpdates : UserControl
 {
-    public partial class OnboardingUpdates : UserControl
+    public OnboardingUpdates()
     {
-        public OnboardingUpdates()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void OnboardingUpdates_Load(object sender, EventArgs e)
-        {
-            CbNofityOnUpdate.Checked = Variables.AppSettings.CheckForUpdates;
-            CbExecuteUpdater.Checked = Variables.AppSettings.EnableExecuteUpdateInstaller;
-        }
+    private void OnboardingUpdates_Load(object sender, EventArgs e)
+    {
+        CbNofityOnUpdate.Checked = Variables.AppSettings.CheckForUpdates;
+        CbExecuteUpdater.Checked = Variables.AppSettings.EnableExecuteUpdateInstaller;
+    }
 
-        internal bool Store()
-        {
-            Variables.AppSettings.CheckForUpdates = CbNofityOnUpdate.Checked;
-            Variables.AppSettings.EnableExecuteUpdateInstaller = CbExecuteUpdater.Checked;
-            return true;
-        }
+    internal bool Store()
+    {
+        Variables.AppSettings.CheckForUpdates = CbNofityOnUpdate.Checked;
+        Variables.AppSettings.EnableExecuteUpdateInstaller = CbExecuteUpdater.Checked;
+        return true;
     }
 }

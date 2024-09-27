@@ -1,11 +1,10 @@
-﻿namespace HASS.Agent.Enums
+﻿namespace HASS.Agent.Enums;
+
+public enum HassManagerStatus
 {
-    public enum HassManagerStatus
-    {
-        ConfigMissing,
-        Failed,
-        Initialising,
-        LoadingData,
-        Ready
-    }
+    ConfigMissing,
+    Failed,
+    Initialising,
+    LoadingData,
+    Ready
 }

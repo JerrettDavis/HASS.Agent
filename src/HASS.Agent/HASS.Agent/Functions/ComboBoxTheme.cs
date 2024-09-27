@@ -6,148 +6,147 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Windows.Forms.ComboBox;
 
-namespace HASS.Agent.Functions
+namespace HASS.Agent.Functions;
+
+/// <summary>
+/// Makes sure our combobox has the right colors
+/// <para>Source: https://stackoverflow.com/a/60421006 </para>
+/// <para>Source: https://stackoverflow.com/a/11650321 </para>
+/// </summary>
+internal static class ComboBoxTheme
 {
     /// <summary>
-    /// Makes sure our combobox has the right colors
-    /// <para>Source: https://stackoverflow.com/a/60421006 </para>
-    /// <para>Source: https://stackoverflow.com/a/11650321 </para>
+    /// Converts the items directly to strings
     /// </summary>
-    internal static class ComboBoxTheme
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    internal static void DrawItem(object sender, DrawItemEventArgs e)
     {
-        /// <summary>
-        /// Converts the items directly to strings
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        internal static void DrawItem(object sender, DrawItemEventArgs e)
+        // only relevant for listviews in detail mode
+        if (sender is not ComboBox comboBox)
+            return;
+
+        // only if there are items
+        if (comboBox.Items.Count <= 0)
         {
-            // only relevant for listviews in detail mode
-            if (sender is not ComboBox comboBox)
-                return;
+            // limit the dropdown's height
+            comboBox.DropDownHeight = 20;
 
-            // only if there are items
-            if (comboBox.Items.Count <= 0)
-            {
-                // limit the dropdown's height
-                comboBox.DropDownHeight = 20;
-
-                return;
-            }
-
-            // reset the dropdown's height
-            comboBox.DropDownHeight = 300;
-
-            // fetch the index
-            var index = e.Index >= 0 ? e.Index : 0;
-
-            // draw the control's background
-            e.DrawBackground();
-
-            // check if we have an item to process
-            if (index != -1)
-            {
-                // optionally set the item's background color as selected
-                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
-
-                // draw the string
-                var brush = (e.State & DrawItemState.Selected) > 0
-                    ? new SolidBrush(Color.FromArgb(63, 63, 70))
-                    : new SolidBrush(comboBox.ForeColor);
-                e.Graphics.DrawString(comboBox.Items[index].ToString(), Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
-            }
-
-            // draw focus rectangle
-            e.DrawFocusRectangle();
+            return;
         }
 
-        /// <summary>
-        /// Converts the items to KeyValuePair[int, string]
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        internal static void DrawDictionaryIntStringItem(object sender, DrawItemEventArgs e)
+        // reset the dropdown's height
+        comboBox.DropDownHeight = 300;
+
+        // fetch the index
+        var index = e.Index >= 0 ? e.Index : 0;
+
+        // draw the control's background
+        e.DrawBackground();
+
+        // check if we have an item to process
+        if (index != -1)
         {
-            // only relevant for listviews in detail mode
-            if (sender is not ComboBox comboBox)
-                return;
+            // optionally set the item's background color as selected
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
 
-            // only if there are items
-            if (comboBox.Items.Count <= 0)
-                return;
-
-            // fetch the index
-            var index = e.Index >= 0 ? e.Index : 0;
-
-            // draw the control's background
-            e.DrawBackground();
-
-            // check if we have an item to process
-            if (index != -1)
-            {
-                // optionally set the item's background color as selected
-                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
-
-                // get the value
-                var value = (KeyValuePair<int, string>)comboBox.Items[index];
-
-                // draw the string
-                var brush = (e.State & DrawItemState.Selected) > 0
-                    ? new SolidBrush(Color.FromArgb(63, 63, 70))
-                    : new SolidBrush(comboBox.ForeColor);
-                e.Graphics.DrawString(value.Value, Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
-            }
-
-            // draw focus rectangle
-            e.DrawFocusRectangle();
+            // draw the string
+            var brush = (e.State & DrawItemState.Selected) > 0
+                ? new SolidBrush(Color.FromArgb(63, 63, 70))
+                : new SolidBrush(comboBox.ForeColor);
+            e.Graphics.DrawString(comboBox.Items[index].ToString(), Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
         }
 
-        /// <summary>
-        /// Converts the items to KeyValuePair[string, string]
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        internal static void DrawDictionaryStringStringItem(object sender, DrawItemEventArgs e)
+        // draw focus rectangle
+        e.DrawFocusRectangle();
+    }
+
+    /// <summary>
+    /// Converts the items to KeyValuePair[int, string]
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    internal static void DrawDictionaryIntStringItem(object sender, DrawItemEventArgs e)
+    {
+        // only relevant for listviews in detail mode
+        if (sender is not ComboBox comboBox)
+            return;
+
+        // only if there are items
+        if (comboBox.Items.Count <= 0)
+            return;
+
+        // fetch the index
+        var index = e.Index >= 0 ? e.Index : 0;
+
+        // draw the control's background
+        e.DrawBackground();
+
+        // check if we have an item to process
+        if (index != -1)
         {
-            // only relevant for listviews in detail mode
-            if (sender is not ComboBox comboBox)
-                return;
+            // optionally set the item's background color as selected
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
 
-            // only if there are items
-            if (comboBox.Items.Count <= 0)
-                return;
+            // get the value
+            var value = (KeyValuePair<int, string>)comboBox.Items[index];
 
-            // additional check for empty dictionary
-            if (comboBox.Items[0] is IDictionary)
-                return;
+            // draw the string
+            var brush = (e.State & DrawItemState.Selected) > 0
+                ? new SolidBrush(Color.FromArgb(63, 63, 70))
+                : new SolidBrush(comboBox.ForeColor);
+            e.Graphics.DrawString(value.Value, Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
+        }
+
+        // draw focus rectangle
+        e.DrawFocusRectangle();
+    }
+
+    /// <summary>
+    /// Converts the items to KeyValuePair[string, string]
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    internal static void DrawDictionaryStringStringItem(object sender, DrawItemEventArgs e)
+    {
+        // only relevant for listviews in detail mode
+        if (sender is not ComboBox comboBox)
+            return;
+
+        // only if there are items
+        if (comboBox.Items.Count <= 0)
+            return;
+
+        // additional check for empty dictionary
+        if (comboBox.Items[0] is IDictionary)
+            return;
             
-            // fetch the index
-            var index = e.Index >= 0 ? e.Index : 0;
+        // fetch the index
+        var index = e.Index >= 0 ? e.Index : 0;
 
-            // draw the control's background
-            e.DrawBackground();
+        // draw the control's background
+        e.DrawBackground();
 
-            // check if we have an item to process
-            if (index != -1)
-            {
-                // optionally set the item's background color as selected
-                if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                    e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
+        // check if we have an item to process
+        if (index != -1)
+        {
+            // optionally set the item's background color as selected
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(241, 241, 241)), e.Bounds);
 
-                // get the value
-                var value = (KeyValuePair<string, string>)comboBox.Items[index];
+            // get the value
+            var value = (KeyValuePair<string, string>)comboBox.Items[index];
 
-                // draw the string
-                var brush = (e.State & DrawItemState.Selected) > 0
-                    ? new SolidBrush(Color.FromArgb(63, 63, 70))
-                    : new SolidBrush(comboBox.ForeColor);
-                e.Graphics.DrawString(value.Value, Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
-            }
-
-            // draw focus rectangle
-            e.DrawFocusRectangle();
+            // draw the string
+            var brush = (e.State & DrawItemState.Selected) > 0
+                ? new SolidBrush(Color.FromArgb(63, 63, 70))
+                : new SolidBrush(comboBox.ForeColor);
+            e.Graphics.DrawString(value.Value, Variables.DefaultFont, brush, e.Bounds, StringFormat.GenericDefault);
         }
+
+        // draw focus rectangle
+        e.DrawFocusRectangle();
     }
 }

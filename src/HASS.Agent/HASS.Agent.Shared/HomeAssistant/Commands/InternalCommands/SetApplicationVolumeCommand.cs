@@ -10,64 +10,63 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace HASS.Agent.Shared.HomeAssistant.Commands.InternalCommands
-{
-    public class SetApplicationVolumeCommand : InternalCommand
-    {
-        private const string DefaultName = "setappvolume";
+namespace HASS.Agent.Shared.HomeAssistant.Commands.InternalCommands;
 
-        public SetApplicationVolumeCommand(string entityName = DefaultName, string name = DefaultName, string commandConfig = "", CommandEntityType entityType = CommandEntityType.Button, string id = default) : base(entityName ?? DefaultName, name ?? null, commandConfig, entityType, id)
+public class SetApplicationVolumeCommand : InternalCommand
+{
+    private const string DefaultName = "setappvolume";
+
+    public SetApplicationVolumeCommand(string entityName = DefaultName, string name = DefaultName, string commandConfig = "", CommandEntityType entityType = CommandEntityType.Button, string id = default) : base(entityName ?? DefaultName, name ?? null, commandConfig, entityType, id)
+    {
+        State = "OFF";
+    }
+
+    public override void TurnOn()
+    {
+        if (string.IsNullOrWhiteSpace(CommandConfig))
         {
-            State = "OFF";
+            Log.Error("[SETAPPVOLUME] Error, command config is null/empty/blank");
+
+            return;
         }
 
-        public override void TurnOn()
+
+        TurnOnWithAction(CommandConfig);
+    }
+
+    public override void TurnOnWithAction(string action)
+    {
+        State = "ON";
+
+        try
         {
-            if (string.IsNullOrWhiteSpace(CommandConfig))
+            var actionData = JsonConvert.DeserializeObject<ApplicationVolumeAction>(action);
+
+            if (string.IsNullOrWhiteSpace(actionData.ApplicationName))
             {
-                Log.Error("[SETAPPVOLUME] Error, command config is null/empty/blank");
+                Log.Error("[SETAPPVOLUME] Error, this command can be run only with action");
 
                 return;
             }
 
-
-            TurnOnWithAction(CommandConfig);
+            AudioManager.SetApplicationProperties(actionData.PlaybackDevice, actionData.ApplicationName, actionData.SessionId, actionData.Volume, actionData.Mute);
         }
-
-        public override void TurnOnWithAction(string action)
+        catch (Exception ex)
         {
-            State = "ON";
-
-            try
-            {
-                var actionData = JsonConvert.DeserializeObject<ApplicationVolumeAction>(action);
-
-                if (string.IsNullOrWhiteSpace(actionData.ApplicationName))
-                {
-                    Log.Error("[SETAPPVOLUME] Error, this command can be run only with action");
-
-                    return;
-                }
-
-                AudioManager.SetApplicationProperties(actionData.PlaybackDevice, actionData.ApplicationName, actionData.SessionId, actionData.Volume, actionData.Mute);
-            }
-            catch (Exception ex)
-            {
-                Log.Error("[SETAPPVOLUME] Error while processing action '{action}': {err}", action, ex.Message);
-            }
-            finally
-            {
-                State = "OFF";
-            }
+            Log.Error("[SETAPPVOLUME] Error while processing action '{action}': {err}", action, ex.Message);
         }
-
-        private class ApplicationVolumeAction
+        finally
         {
-            public int Volume { get; set; } = -1;
-            public bool Mute { get; set; } = false;
-            public string ApplicationName { get; set; } = string.Empty;
-            public string PlaybackDevice { get; set; } = string.Empty;
-            public string SessionId { get; set; } = string.Empty;
+            State = "OFF";
         }
+    }
+
+    private class ApplicationVolumeAction
+    {
+        public int Volume { get; set; } = -1;
+        public bool Mute { get; set; } = false;
+        public string ApplicationName { get; set; } = string.Empty;
+        public string PlaybackDevice { get; set; } = string.Empty;
+        public string SessionId { get; set; } = string.Empty;
     }
 }

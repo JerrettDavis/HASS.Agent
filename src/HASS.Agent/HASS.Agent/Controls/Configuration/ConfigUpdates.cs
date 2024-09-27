@@ -1,10 +1,9 @@
-﻿namespace HASS.Agent.Controls.Configuration
+﻿namespace HASS.Agent.Controls.Configuration;
+
+public partial class ConfigUpdates : UserControl
 {
-    public partial class ConfigUpdates : UserControl
+    public ConfigUpdates()
     {
-        public ConfigUpdates()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

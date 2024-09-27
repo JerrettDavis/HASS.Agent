@@ -5,34 +5,33 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace HASS.Agent.API
+namespace HASS.Agent.API;
+
+/// <summary>
+/// Configuration for the local API
+/// </summary>
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+public class ApiConfiguration
 {
-    /// <summary>
-    /// Configuration for the local API
-    /// </summary>
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    public class ApiConfiguration
+    public IConfiguration Configuration { get; private set; }
+
+    public ApiConfiguration(IConfiguration configuration)
     {
-        public IConfiguration Configuration { get; private set; }
+        Configuration = configuration;
+    }
 
-        public ApiConfiguration(IConfiguration configuration)
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddLogging(loggingBuilder =>
         {
-            Configuration = configuration;
-        }
+            loggingBuilder.ClearProviders();
+            loggingBuilder.AddSerilog();
+        });
+    }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddLogging(loggingBuilder =>
-            {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddSerilog();
-            });
-        }
-
-        public void ConfigureServer(IRestServer server)
-        {
-            server.Prefixes.Add($"http://+:{Variables.AppSettings.LocalApiPort}/");
-            server.Router.Options.SendExceptionMessages = true;
-        }
+    public void ConfigureServer(IRestServer server)
+    {
+        server.Prefixes.Add($"http://+:{Variables.AppSettings.LocalApiPort}/");
+        server.Router.Options.SendExceptionMessages = true;
     }
 }
