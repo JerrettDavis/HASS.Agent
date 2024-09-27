@@ -15,8 +15,8 @@ namespace HASS.Agent.Forms;
 public partial class WebView : MetroForm
 {
     private readonly WebViewInfo _webViewInfo;
-    private bool _forceClose = false;
-    private bool _isTrayIcon = false;
+    private bool _forceClose;
+    private bool _isTrayIcon;
 
     public WebView(WebViewInfo webViewInfo)
     {

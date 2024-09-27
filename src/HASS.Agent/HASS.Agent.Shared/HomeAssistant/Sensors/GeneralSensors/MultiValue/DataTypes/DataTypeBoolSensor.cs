@@ -12,7 +12,7 @@ public class DataTypeBoolSensor : AbstractSingleValueSensor
     private readonly string _deviceClass;
     private readonly string _icon;
 
-    private bool _value = false;
+    private bool _value;
     private string _attributes = string.Empty;
 
     public DataTypeBoolSensor(int? updateInterval, string entityName, string name, string id, string deviceClass, string icon, string multiValueSensorName, bool useAttributes = false) : base(entityName, name, updateInterval ?? 30, id, useAttributes)

@@ -13,7 +13,7 @@ public partial class ServiceCommands : UserControl
     private string _deviceName;
     private readonly List<ConfiguredCommand> _commands = new();
 
-    private bool _storing = false;
+    private bool _storing;
 
     public ServiceCommands()
     {

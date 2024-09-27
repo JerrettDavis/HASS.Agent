@@ -13,7 +13,7 @@ public class PerformanceCounterSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "performancecountersensor";
 
-    protected PerformanceCounter Counter = null;
+    protected PerformanceCounter Counter;
 
     public string CategoryName { get; private set; }
     public string CounterName { get; private set; }

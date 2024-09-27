@@ -16,10 +16,10 @@ using Microsoft.VisualBasic.ApplicationServices;
 namespace HASS.Agent.Shared.Managers.Audio;
 public static class AudioManager
 {
-    private static bool _initialized = false;
+    private static bool _initialized;
 
-    private static MMDeviceEnumerator _enumerator = null;
-    private static MMNotificationClient _notificationClient = null;
+    private static MMDeviceEnumerator _enumerator;
+    private static MMNotificationClient _notificationClient;
 
     private static readonly ConcurrentDictionary<string, string> _devices = new();
 

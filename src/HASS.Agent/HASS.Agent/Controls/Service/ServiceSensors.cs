@@ -13,7 +13,7 @@ public partial class ServiceSensors : UserControl
     private string _deviceName;
     private readonly List<ConfiguredSensor> _sensors = new();
 
-    private bool _storing = false;
+    private bool _storing;
 
     public ServiceSensors()
     {

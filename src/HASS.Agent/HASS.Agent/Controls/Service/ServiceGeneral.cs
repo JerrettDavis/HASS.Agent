@@ -21,7 +21,7 @@ public partial class ServiceGeneral : UserControl
     }
 
     private ServiceConfig _serviceConfig;
-    private ServiceSettings _serviceSettings = null;
+    private ServiceSettings _serviceSettings;
         
     public ServiceGeneral()
     {

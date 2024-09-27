@@ -16,7 +16,7 @@ public partial class SensorsConfig : MetroForm
     private List<ConfiguredSensor> _sensors = new();
     private readonly List<ConfiguredSensor> _toBeDeletedSensors = new();
 
-    private bool _storing = false;
+    private bool _storing;
         
     public SensorsConfig()
     {

@@ -17,7 +17,7 @@ public class PowershellCommand : AbstractCommand
     public string State { get; protected set; }
     public Process Process { get; set; }
 
-    private readonly bool _isScript = false;
+    private readonly bool _isScript;
     private readonly string _descriptor = "command";
 
     public PowershellCommand(string command, string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, entityType, id)

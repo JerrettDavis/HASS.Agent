@@ -21,7 +21,7 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.MultiValue;
 public class AudioSensors : AbstractMultiValueSensor
 {
     private const string DefaultName = "audio";
-    private bool _errorPrinted = false;
+    private bool _errorPrinted;
 
     private readonly int _updateInterval;
 

@@ -15,7 +15,7 @@ public partial class WebViewCommandConfig : MetroForm
     private Point _dragCursorPoint;
     private Point _dragFormPoint;
         
-    public WebViewInfo WebViewInfo { get; private set; } = null;
+    public WebViewInfo WebViewInfo { get; private set; }
 
     public WebViewCommandConfig(string webViewInfo = "")
     {

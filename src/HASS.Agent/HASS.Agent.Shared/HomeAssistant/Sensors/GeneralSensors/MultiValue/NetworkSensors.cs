@@ -20,7 +20,7 @@ public class NetworkSensors : AbstractMultiValueSensor
     private readonly int _updateInterval;
 
     public string NetworkCard { get; protected set; }
-    private readonly bool _useSpecificCard = false;
+    private readonly bool _useSpecificCard;
 
     public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
 

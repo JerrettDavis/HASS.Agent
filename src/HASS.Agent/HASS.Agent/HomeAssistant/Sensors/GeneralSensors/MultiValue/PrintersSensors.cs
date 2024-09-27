@@ -18,7 +18,7 @@ public class PrintersSensors : AbstractMultiValueSensor
 {
     private const string DefaultName = "printers";
 
-    private bool _errorPrinted = false;
+    private bool _errorPrinted;
 
     private readonly int _updateInterval;
 

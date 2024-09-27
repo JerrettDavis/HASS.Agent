@@ -8,7 +8,7 @@ namespace HASS.Agent.Forms;
 public partial class Onboarding : MetroForm
 {
     private readonly OnboardingManager _onboardingManager;
-    private bool _forceClose = false;
+    private bool _forceClose;
 
     public Onboarding()
     {

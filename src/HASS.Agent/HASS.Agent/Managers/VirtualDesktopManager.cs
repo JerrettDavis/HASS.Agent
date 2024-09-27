@@ -15,7 +15,7 @@ namespace HASS.Agent.Managers;
 //This means it's required to limit the functionality on systems not to expose users to runtime application errors.
 internal static class VirtualDesktopManager
 {
-    public static bool Initialized { get; private set; } = false;
+    public static bool Initialized { get; private set; }
 
     internal static bool Initialize()
     {

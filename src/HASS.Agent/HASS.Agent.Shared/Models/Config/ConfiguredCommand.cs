@@ -26,7 +26,7 @@ public class ConfiguredCommand
     public string Command { get; set; } = string.Empty;
 
     public VirtualKeyShort KeyCode { get; set; }
-    public bool RunAsLowIntegrity { get; set; } = false;
+    public bool RunAsLowIntegrity { get; set; }
     public List<string> Keys { get; set; } = new List<string>();
 
     public static ConfiguredCommand FromLAB02(ConfiguredCommandLAB02 oldConfig)

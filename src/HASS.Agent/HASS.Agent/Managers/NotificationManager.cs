@@ -21,7 +21,7 @@ internal static class NotificationManager
 {
     public const string NotificationLaunchArgument = "----AppNotificationActivated:";
 
-    public static bool Ready { get; private set; } = false;
+    public static bool Ready { get; private set; }
 
     private const string ActionKey = "action";
     private const string UriKey = "uri";

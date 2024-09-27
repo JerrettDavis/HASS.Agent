@@ -18,8 +18,8 @@ public partial class QuickActions : MetroForm
 
     private readonly Dictionary<int, int> _rowColumnCounts = new();
 
-    private int _columns = 0;
-    private int _rows = 0;
+    private int _columns;
+    private int _rows;
 
     private int _selectedColumn = -1;
     private int _selectedRow = -1;

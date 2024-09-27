@@ -23,7 +23,7 @@ public static class SessionInfo
     private const int WTS_SESSIONSTATE_LOCK = 0;
     private const int WTS_SESSIONSTATE_UNLOCK = 1;
 
-    private static readonly bool OsIsWin7 = false;
+    private static readonly bool OsIsWin7;
 
     static SessionInfo()
     {

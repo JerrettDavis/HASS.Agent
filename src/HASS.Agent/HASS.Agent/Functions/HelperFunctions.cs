@@ -33,7 +33,7 @@ namespace HASS.Agent.Functions;
 
 internal static class HelperFunctions
 {
-    private static bool _shutdownCalled = false;
+    private static bool _shutdownCalled;
 
     /// <summary>
     /// Initializes Syncfusion's messagebox style

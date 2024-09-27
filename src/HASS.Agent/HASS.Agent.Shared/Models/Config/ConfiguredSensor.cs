@@ -24,7 +24,7 @@ public class ConfiguredSensor
     public string Instance { get; set; } = string.Empty;
     public string EntityName { get; set; } = string.Empty;
     public bool IgnoreAvailability { get; set; } = false;
-    public bool ApplyRounding { get; set; } = false;
+    public bool ApplyRounding { get; set; }
     public int? Round { get; set; }
     public string AdvancedSettings { get; set; } = string.Empty;
 

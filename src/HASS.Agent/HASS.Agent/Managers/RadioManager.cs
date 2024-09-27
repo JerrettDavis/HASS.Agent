@@ -24,7 +24,7 @@ internal static class RadioManager
     public static List<string> AvailableNFCReaderNames => AvailableNFCReader.Keys.ToList();
 
     private static long s_subscriptionId = -1;
-    private static ProximityDevice s_selectedNFCReader = null;
+    private static ProximityDevice s_selectedNFCReader;
     public static ProximityDevice SelectedNFCReader
     {
         get => s_selectedNFCReader;

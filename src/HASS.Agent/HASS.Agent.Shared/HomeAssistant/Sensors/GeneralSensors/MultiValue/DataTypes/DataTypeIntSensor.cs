@@ -13,7 +13,7 @@ public class DataTypeIntSensor : AbstractSingleValueSensor
     private readonly string _unitOfMeasurement;
     private readonly string _icon;
 
-    private int _value = 0;
+    private int _value;
     private string _attributes = string.Empty;
 
     public DataTypeIntSensor(int? updateInterval, string entityName, string name, string id, string deviceClass, string stateClass, string icon, string unitOfMeasurement, string multiValueSensorName, bool useAttributes = false) : base(entityName, name, updateInterval ?? 30, id, useAttributes)

@@ -24,10 +24,10 @@ namespace HASS.Agent.Satellite.Service.MQTT;
 /// </summary>
 public class MqttManager : IMqttManager
 {
-    private IManagedMqttClient? _mqttClient = null;
+    private IManagedMqttClient? _mqttClient;
 
-    private bool _disconnectionNotified = false;
-    private bool _connectingFailureNotified = false;
+    private bool _disconnectionNotified;
+    private bool _connectingFailureNotified;
 
     private MqttStatus _status = MqttStatus.Connecting;
 
@@ -36,7 +36,7 @@ public class MqttManager : IMqttManager
     /// </summary>
     public bool IsConnected() => _mqttClient is { IsConnected: true };
 
-    private bool _isReady = false;
+    private bool _isReady;
     /// <summary>
     /// Returns whether MqttManager is ready for operation
     /// </summary>

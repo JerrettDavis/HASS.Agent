@@ -34,7 +34,7 @@ namespace HASS.Agent.Forms;
 [SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
 public partial class Main : MetroForm
 {
-    private bool _isClosing = false;
+    private bool _isClosing;
 
     public Main()
     {

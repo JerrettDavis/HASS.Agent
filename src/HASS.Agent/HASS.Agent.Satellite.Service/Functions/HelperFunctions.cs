@@ -9,7 +9,7 @@ namespace HASS.Agent.Satellite.Service.Functions;
 
 internal static class HelperFunctions
 {
-    private static bool _shutdownCalled = false;
+    private static bool _shutdownCalled;
 
     /// <summary>
     /// Returns the configured device name, or a safe version of the machinename if nothing's stored

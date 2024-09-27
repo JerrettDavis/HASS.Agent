@@ -10,7 +10,7 @@ public partial class QuickActionsConfig : MetroForm
 {
     private readonly List<QuickAction> _quickActions = new();
 
-    private bool _storing = false;
+    private bool _storing;
 
     public QuickActionsConfig()
     {

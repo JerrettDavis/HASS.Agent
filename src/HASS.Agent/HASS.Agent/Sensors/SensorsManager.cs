@@ -24,7 +24,7 @@ internal static class SensorsManager
     private static bool _active = true;
     private static bool _pause;
 
-    private static bool _discoveryPublished = false;
+    private static bool _discoveryPublished;
 
     private static DateTime _lastAutoDiscoPublish = DateTime.MinValue;
 

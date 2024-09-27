@@ -14,7 +14,7 @@ public partial class CommandsConfig : MetroForm
     private List<ConfiguredCommand> _commands = new();
     private readonly List<ConfiguredCommand> _toBeDeletedCommands = new();
 
-    private bool _storing = false;
+    private bool _storing;
 
     public CommandsConfig()
     {
