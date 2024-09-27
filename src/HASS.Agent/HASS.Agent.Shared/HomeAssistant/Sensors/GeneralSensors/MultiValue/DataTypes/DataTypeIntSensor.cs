@@ -49,7 +49,7 @@ public class DataTypeIntSensor : AbstractSingleValueSensor
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        var model = new SensorDiscoveryConfigModel()
+        var model = new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

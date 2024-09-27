@@ -39,7 +39,7 @@ public class MicrophoneProcessSensor : AbstractSingleValueSensor
             return null;
         }
 
-        var model = new SensorDiscoveryConfigModel()
+        var model = new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

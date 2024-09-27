@@ -10,5 +10,18 @@ public class MediaMuteCommand : KeyCommand
 {
     private const string DefaultName = "mute";
 
-    public MediaMuteCommand(string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(VirtualKeyShort.VOLUME_MUTE, entityName ?? DefaultName, name ?? null, entityType, id) { }
+    public MediaMuteCommand(
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        CommandEntityType entityType = CommandEntityType.Switch,
+        string? id = default
+    ) : base(
+        VirtualKeyShort.VOLUME_MUTE,
+        entityName ?? DefaultName,
+        name ?? null,
+        entityType,
+        id
+    )
+    {
+    }
 }

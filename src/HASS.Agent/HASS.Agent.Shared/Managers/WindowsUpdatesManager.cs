@@ -14,8 +14,8 @@ public static class WindowsUpdatesManager
 {
     private static DateTime _lastCheck = DateTime.MinValue;
 
-    private static List<WindowsUpdateInfo> _driverUpdates = new List<WindowsUpdateInfo>();
-    private static List<WindowsUpdateInfo> _softwareUpdates = new List<WindowsUpdateInfo>();
+    private static List<WindowsUpdateInfo> _driverUpdates = new();
+    private static List<WindowsUpdateInfo> _softwareUpdates = new();
 
     /// <summary>
     /// Attempts to look for available driver- and software updates (max once per 10 minutes)
@@ -155,7 +155,7 @@ public static class WindowsUpdatesManager
                 var type = update.Type == UpdateType.utDriver ? "Driver" : "Software";
 
                 // fill the update info object
-                var wuInfo = new WindowsUpdateInfo()
+                var wuInfo = new WindowsUpdateInfo
                 {
                     Title = update.Title,
                     Description = update.Description,

@@ -27,7 +27,7 @@ public static class SharedSystemStateManager
     /// <summary>
     /// Contains the key value pair with SystemStateEvent and the last time it occurred
     /// </summary>
-    public static Dictionary<SystemStateEvent, DateTime> LastEventOccurrence = new Dictionary<SystemStateEvent, DateTime>();
+    public static Dictionary<SystemStateEvent, DateTime> LastEventOccurrence = new();
 
     /// <summary>
     /// Sets the provided system state event

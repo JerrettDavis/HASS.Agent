@@ -16,9 +16,15 @@ public abstract class AbstractMultiValueSensor : AbstractDiscoverable
 
     public abstract Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; }
 
-    protected AbstractMultiValueSensor(string entityName, string name, int updateIntervalSeconds = 10, string id = default)
+    protected AbstractMultiValueSensor(
+        string entityName,
+        string? name,
+        int updateIntervalSeconds = 10,
+        string? id = default)
     {
-        Id = id == null || id == Guid.Empty.ToString() ? Guid.NewGuid().ToString() : id;
+        Id = id == null || id == Guid.Empty.ToString()
+            ? Guid.NewGuid().ToString()
+            : id;
         EntityName = entityName;
         Name = name;
         UpdateIntervalSeconds = updateIntervalSeconds;
@@ -37,7 +43,7 @@ public abstract class AbstractMultiValueSensor : AbstractDiscoverable
         LastUpdated = DateTime.MinValue;
         foreach (var sensor in Sensors) sensor.Value.ResetChecks();
     }
-        
+
     public async Task PublishStatesAsync(bool respectChecks = true)
     {
         try
@@ -53,7 +59,9 @@ public abstract class AbstractMultiValueSensor : AbstractDiscoverable
             UpdateSensorValues();
 
             // update their values
-            foreach (var sensor in Sensors) await sensor.Value.PublishStateAsync(respectChecks);
+            var tasks = Sensors.Select(s => s.Value.PublishStateAsync(respectChecks));
+            
+            await Task.WhenAll(tasks);
 
             LastUpdated = DateTime.Now;
         }
@@ -63,13 +71,9 @@ public abstract class AbstractMultiValueSensor : AbstractDiscoverable
         }
     }
 
-    public async Task PublishAutoDiscoveryConfigAsync()
-    {
-        foreach (var sensor in Sensors) await sensor.Value.PublishAutoDiscoveryConfigAsync();
-    }
+    public Task PublishAutoDiscoveryConfigAsync() => 
+        Task.WhenAll(Sensors.Select(s => s.Value.PublishAutoDiscoveryConfigAsync()));
 
-    public async Task UnPublishAutoDiscoveryConfigAsync()
-    {
-        foreach (var sensor in Sensors) await sensor.Value.UnPublishAutoDiscoveryConfigAsync();
-    }
+    public Task UnPublishAutoDiscoveryConfigAsync() => 
+        Task.WhenAll(Sensors.Select(s => s.Value.UnPublishAutoDiscoveryConfigAsync()));
 }

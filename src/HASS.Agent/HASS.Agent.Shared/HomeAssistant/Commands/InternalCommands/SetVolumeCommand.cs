@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Data.SqlTypes;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using HASS.Agent.Shared.Enums;
-using HASS.Agent.Shared.Functions;
-using HASS.Agent.Shared.Managers;
 using HASS.Agent.Shared.Managers.Audio;
 using Serilog;
 
@@ -22,14 +16,21 @@ public class SetVolumeCommand : InternalCommand
     private const string DefaultName = "setvolume";
     private readonly int _volume = -1;
 
-    public SetVolumeCommand(string entityName = DefaultName, string name = DefaultName, string volume = "", CommandEntityType entityType = CommandEntityType.Button, string id = default) : base(entityName ?? DefaultName, name ?? null, volume, entityType, id)
+    public SetVolumeCommand(
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string volume = "",
+        CommandEntityType entityType = CommandEntityType.Button, 
+        string? id = default) : 
+        base(entityName ?? DefaultName, name ?? null, volume, entityType, id)
     {
         if (!string.IsNullOrWhiteSpace(volume))
         {
             var parsed = int.TryParse(volume, out var volumeInt);
             if (!parsed)
             {
-                Log.Error("[SETVOLUME] [{name}] Unable to parse configured volume level, not an int: {val}", EntityName, volume);
+                Log.Error("[SETVOLUME] [{name}] Unable to parse configured volume level, not an int: {val}", EntityName,
+                    volume);
                 _volume = -1;
             }
 
@@ -47,12 +48,18 @@ public class SetVolumeCommand : InternalCommand
         {
             if (_volume == -1f)
             {
-                Log.Warning("[SETVOLUME] [{name}] Unable to trigger command, it's configured as action-only", EntityName);
+                Log.Warning(
+                    "[SETVOLUME] [{name}] Unable to trigger command, it's configured as action-only",
+                    EntityName);
 
                 return;
             }
 
-            AudioManager.SetDefaultDeviceProperties(DeviceType.Output, DeviceRole.Multimedia | DeviceRole.Console, _volume, null);
+            AudioManager.SetDefaultDeviceProperties(
+                DeviceType.Output, 
+                DeviceRole.Multimedia | DeviceRole.Console,
+                _volume, 
+                null);
         }
         catch (Exception ex)
         {
@@ -70,15 +77,22 @@ public class SetVolumeCommand : InternalCommand
 
         try
         {
-            var parsed = int.TryParse(action, out var volumeInt);
+            var parsed = int.TryParse(action, out _); // TODO: Confirm this is valid.
             if (!parsed)
             {
-                Log.Error("[SETVOLUME] [{name}] Unable to trigger command, the provided action value can't be parsed: {val}", EntityName, action);
+                Log.Error(
+                    "[SETVOLUME] [{name}] Unable to trigger command, the provided action value can't be parsed: {val}",
+                    EntityName, action);
 
                 return;
             }
 
-            AudioManager.SetDefaultDeviceProperties(DeviceType.Output, DeviceRole.Multimedia | DeviceRole.Console, _volume, null);
+            // TODO: Confirm if this is the correct way to set the volume or if volumeInt should be used instead
+            AudioManager.SetDefaultDeviceProperties(
+                DeviceType.Output, 
+                DeviceRole.Multimedia | DeviceRole.Console,
+                _volume, 
+                null);
         }
         catch (Exception ex)
         {

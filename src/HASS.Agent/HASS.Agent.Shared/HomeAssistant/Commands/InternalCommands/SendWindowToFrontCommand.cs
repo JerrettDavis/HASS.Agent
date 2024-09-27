@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using HASS.Agent.Shared.Enums;
+﻿using HASS.Agent.Shared.Enums;
 using HASS.Agent.Shared.Managers;
 using Serilog;
 
@@ -14,7 +11,19 @@ public class SendWindowToFrontCommand : InternalCommand
 {
     private const string DefaultName = "sendwindowtofront";
 
-    public SendWindowToFrontCommand(string entityName = DefaultName, string name = DefaultName, string process = "", CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, process, entityType, id)
+    public SendWindowToFrontCommand(
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string process = "",
+        CommandEntityType entityType = CommandEntityType.Switch,
+        string? id = default
+    ) : base(
+        entityName ?? DefaultName,
+        name ?? null,
+        process,
+        entityType,
+        id
+    )
     {
         CommandConfig = process;
         State = "OFF";
@@ -26,14 +35,16 @@ public class SendWindowToFrontCommand : InternalCommand
 
         if (string.IsNullOrWhiteSpace(CommandConfig))
         {
-            Log.Warning("[SENDWINDOWTOFRONT] [{name}] Unable to launch command, it's configured as action-only", EntityName);
-
+            Log.Warning(
+                "[SENDWINDOWTOFRONT] [{name}] " +
+                "Unable to launch command, it's configured as action-only",
+                EntityName
+            );
             State = "OFF";
             return;
         }
 
         ProcessManager.BringMainWindowToFront(CommandConfig);
-
         State = "OFF";
     }
 
@@ -43,19 +54,25 @@ public class SendWindowToFrontCommand : InternalCommand
 
         if (string.IsNullOrWhiteSpace(action))
         {
-            Log.Warning("[SENDWINDOWTOFRONT] [{name}] Unable to launch command, empty action provided", EntityName);
-
+            Log.Warning(
+                "[SENDWINDOWTOFRONT] [{name}] " +
+                "Unable to launch command, empty action provided",
+                EntityName
+            );
             State = "OFF";
             return;
         }
 
         if (!string.IsNullOrWhiteSpace(CommandConfig))
         {
-            Log.Warning("[SENDWINDOWTOFRONT] [{name}] Command launched by action, command-provided process will be ignored", EntityName);
+            Log.Warning(
+                "[SENDWINDOWTOFRONT] [{name}] " +
+                "Command launched by action, command-provided process will be ignored",
+                EntityName
+            );
         }
 
         ProcessManager.BringMainWindowToFront(action);
-
         State = "OFF";
     }
 }

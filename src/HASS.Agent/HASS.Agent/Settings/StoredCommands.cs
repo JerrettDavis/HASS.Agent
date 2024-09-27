@@ -204,7 +204,7 @@ internal static class StoredCommands
             case CustomCommand customCommand:
             {
                 _ = Enum.TryParse<CommandType>(customCommand.GetType().Name, out var type);
-                return new ConfiguredCommand()
+                return new ConfiguredCommand
                 {
                     Id = Guid.Parse(customCommand.Id),
                     EntityName = customCommand.EntityName,
@@ -219,7 +219,7 @@ internal static class StoredCommands
             case PowershellCommand powershellCommand:
             {
                 _ = Enum.TryParse<CommandType>(powershellCommand.GetType().Name, out var type);
-                return new ConfiguredCommand()
+                return new ConfiguredCommand
                 {
                     Id = Guid.Parse(powershellCommand.Id),
                     EntityName = powershellCommand.EntityName,
@@ -233,7 +233,7 @@ internal static class StoredCommands
             case KeyCommand customKeyCommand:
             {
                 _ = Enum.TryParse<CommandType>(customKeyCommand.GetType().Name, out var type);
-                return new ConfiguredCommand()
+                return new ConfiguredCommand
                 {
                     Id = Guid.Parse(customKeyCommand.Id),
                     EntityName = customKeyCommand.EntityName,
@@ -247,7 +247,7 @@ internal static class StoredCommands
             case InternalCommand internalCommand:
             {
                 _ = Enum.TryParse<CommandType>(internalCommand.GetType().Name, out var type);
-                return new ConfiguredCommand()
+                return new ConfiguredCommand
                 {
                     Id = Guid.Parse(internalCommand.Id),
                     EntityName = internalCommand.EntityName,
@@ -261,7 +261,7 @@ internal static class StoredCommands
             case MultipleKeysCommand multipleKeysCommand:
             {
                 _ = Enum.TryParse<CommandType>(multipleKeysCommand.GetType().Name, out var type);
-                return new ConfiguredCommand()
+                return new ConfiguredCommand
                 {
                     Id = Guid.Parse(multipleKeysCommand.Id),
                     EntityName = multipleKeysCommand.EntityName,

@@ -25,9 +25,13 @@ public class AudioSensors : AbstractMultiValueSensor
 
     private readonly int _updateInterval;
 
-    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
+    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new();
 
-    public AudioSensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 20, id)
+    public AudioSensors(
+        int? updateInterval = null, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string? id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 20, id)
     {
         _updateInterval = updateInterval ?? 20;
 

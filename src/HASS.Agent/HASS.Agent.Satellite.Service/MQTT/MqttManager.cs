@@ -628,7 +628,7 @@ public class MqttManager : IMqttManager
                 certificates.Add(new X509Certificate2(Variables.ServiceMqttSettings.MqttClientCertificate));
         }
 
-        var clientTlsOptions = new MqttClientTlsOptions()
+        var clientTlsOptions = new MqttClientTlsOptions
         {
             UseTls = Variables.ServiceMqttSettings.MqttUseTls,
             AllowUntrustedCertificates = Variables.ServiceMqttSettings.MqttAllowUntrustedCertificates,

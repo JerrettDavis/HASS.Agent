@@ -7,9 +7,13 @@ namespace HASS.Agent.Shared.HomeAssistant.Commands.KeyCommands;
 /// Simulates a 'arrow up' key press to wake the monitors
 /// https://stackoverflow.com/a/42393472 ?
 /// </summary>
-public class MonitorWakeCommand : KeyCommand
+public class MonitorWakeCommand(
+    string? entityName = MonitorWakeCommand.DefaultName,
+    string? name = MonitorWakeCommand.DefaultName,
+    CommandEntityType entityType = CommandEntityType.Button,
+    string? id = default)
+    : KeyCommand(VirtualKeyShort.UP,
+        entityName ?? DefaultName, name ?? null, entityType, id)
 {
     private const string DefaultName = "monitorwake";
-
-    public MonitorWakeCommand(string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Button, string id = default) : base(VirtualKeyShort.UP, entityName ?? DefaultName, name ?? null, entityType, id) { }
 }

@@ -27,11 +27,11 @@ public class ConfiguredCommand
 
     public VirtualKeyShort KeyCode { get; set; }
     public bool RunAsLowIntegrity { get; set; }
-    public List<string> Keys { get; set; } = new List<string>();
+    public List<string> Keys { get; set; } = new();
 
     public static ConfiguredCommand FromLAB02(ConfiguredCommandLAB02 oldConfig)
     {
-        return new ConfiguredCommand()
+        return new ConfiguredCommand
         {
             Id = oldConfig.Id,
             Name = oldConfig.Name,
@@ -47,7 +47,7 @@ public class ConfiguredCommand
 
     public static ConfiguredCommand From2023Beta(ConfiguredCommand2023Beta oldConfig)
     {
-        return new ConfiguredCommand()
+        return new ConfiguredCommand
         {
             Id = oldConfig.Id,
             Name = oldConfig.Name,

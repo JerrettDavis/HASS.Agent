@@ -6,9 +6,12 @@ namespace HASS.Agent.Shared.HomeAssistant.Commands.KeyCommands;
 /// <summary>
 /// Simulates a 'volume down' mediakey press
 /// </summary>
-public class MediaVolumeDownCommand : KeyCommand
+public class MediaVolumeDownCommand(
+    string? entityName = MediaVolumeDownCommand.DefaultName,
+    string? name = MediaVolumeDownCommand.DefaultName,
+    CommandEntityType entityType = CommandEntityType.Switch,
+    string? id = default)
+    : KeyCommand(VirtualKeyShort.VOLUME_DOWN, entityName ?? DefaultName, name ?? null, entityType, id)
 {
     private const string DefaultName = "volumedown";
-
-    public MediaVolumeDownCommand(string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(VirtualKeyShort.VOLUME_DOWN, entityName ?? DefaultName, name ?? null, entityType, id) { }
 }

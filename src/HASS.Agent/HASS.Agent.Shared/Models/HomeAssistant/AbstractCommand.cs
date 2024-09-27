@@ -17,23 +17,30 @@ public abstract class AbstractCommand : AbstractDiscoverable
     public string PreviousPublishedState { get; set; } = string.Empty;
     public CommandEntityType EntityType { get; set; }
 
-    protected AbstractCommand(string entityName, string name, CommandEntityType entityType = CommandEntityType.Switch, string id = default)
+    protected AbstractCommand(
+        string entityName, 
+        string? name, 
+        CommandEntityType entityType = CommandEntityType.Switch, 
+        string? id = default)
     {
-        Id = id == null || id == Guid.Empty.ToString() ? Guid.NewGuid().ToString() : id;
+        Id = id == null || id == Guid.Empty.ToString() 
+            ? Guid.NewGuid().ToString() : id;
         EntityName = entityName;
         Name = name;
         Domain = entityType.GetEnumMemberValue();
         EntityType = entityType;
     }
 
-    protected CommandDiscoveryConfigModel AutoDiscoveryConfigModel;
-    protected CommandDiscoveryConfigModel SetAutoDiscoveryConfigModel(CommandDiscoveryConfigModel config)
+    protected CommandDiscoveryConfigModel? AutoDiscoveryConfigModel;
+    protected CommandDiscoveryConfigModel SetAutoDiscoveryConfigModel(
+        CommandDiscoveryConfigModel config)
     {
         AutoDiscoveryConfigModel = config;
         return config;
     }
 
-    public override void ClearAutoDiscoveryConfig() => AutoDiscoveryConfigModel = null;
+    public override void ClearAutoDiscoveryConfig() => 
+        AutoDiscoveryConfigModel = null;
 
     public abstract string GetState();
         
@@ -47,7 +54,9 @@ public abstract class AbstractCommand : AbstractDiscoverable
 
             if (respectChecks)
             {
-                if (LastUpdated.HasValue && LastUpdated.Value.AddSeconds(UpdateIntervalSeconds) > DateTime.Now) return;
+                if (LastUpdated.HasValue && 
+                    LastUpdated.Value
+                        .AddSeconds(UpdateIntervalSeconds) > DateTime.Now) return;
                 if (PreviousPublishedState == state) return;
             }
 

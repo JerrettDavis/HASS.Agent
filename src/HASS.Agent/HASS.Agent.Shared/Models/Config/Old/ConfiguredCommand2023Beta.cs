@@ -28,7 +28,7 @@ public class ConfiguredCommand2023Beta
 
     public VirtualKeyShort KeyCode { get; set; }
     public bool RunAsLowIntegrity { get; set; } = false;
-    public List<string> Keys { get; set; } = new List<string>();
+    public List<string> Keys { get; set; } = new();
 
     public static bool InJsonData(string jsonData)
     {

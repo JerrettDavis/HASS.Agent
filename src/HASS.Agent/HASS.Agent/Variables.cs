@@ -7,27 +7,24 @@ using System.Reflection;
 using Windows.Media.Playback;
 using Grapevine;
 using HASS.Agent.Forms;
-using HASS.Agent.Functions;
 using HASS.Agent.Managers;
 using HASS.Agent.Models.Config;
 using HASS.Agent.Models.Internal;
 using HASS.Agent.MQTT;
 using HASS.Agent.Service;
 using HASS.Agent.Settings;
-using HASS.Agent.Shared.HomeAssistant;
-using HASS.Agent.Shared.HomeAssistant.Commands;
-using HASS.Agent.Shared.HomeAssistant.Sensors;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using HASS.Agent.Shared.Mqtt;
-using WV2::Microsoft.Web.WebView2.Core;
-using Microsoft.Win32;
 using MQTTnet;
-using WK.Libraries.HotkeyListenerNS;
 using Serilog.Core;
+using WK.Libraries.HotkeyListenerNS;
+using WV2::Microsoft.Web.WebView2.Core;
 
 namespace HASS.Agent;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
+[SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public static class Variables
 {
     /// <summary>
@@ -54,15 +51,15 @@ public static class Variables
     /// <summary>
     /// Internal references
     /// </summary>
-    internal static Main MainForm { get; set; }
+    internal static Main? MainForm { get; set; }
     internal static HttpClient HttpClient { get; set; } = new();
     internal static Hotkey QuickActionsHotKey { get; set; } = new(Keys.Control | Keys.Alt, Keys.Q);
     internal static HotKeyManager HotKeyManager { get; } = new();
-    internal static HotkeyListener HotKeyListener { get; set; }
+    internal static HotkeyListener? HotKeyListener { get; set; }
     internal static Random Rnd { get; } = new();
     internal static Font DefaultFont { get; } = new("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point);
-    internal static WebView TrayIconWebView { get; set; } = null;
-    internal static CoreWebView2Environment WebViewEnvironment { get; set; } = null;
+    internal static WebView? TrayIconWebView { get; set; } = null;
+    internal static CoreWebView2Environment? WebViewEnvironment { get; set; } = null;
 
     /// <summary>
     /// Localization
@@ -75,7 +72,7 @@ public static class Variables
     /// </summary>
     internal static IMqttManager MqttManager { get; } = new MqttManager();
     internal static MqttFactory MqttFactory { get; } = new();
-    internal static DeviceConfigModel DeviceConfig { get; set; } = null;
+    internal static DeviceConfigModel? DeviceConfig { get; set; } = null;
 
     /// <summary>
     /// RPC (satellite service)
@@ -102,7 +99,7 @@ public static class Variables
     /// <summary>
     /// Local IO
     /// </summary>
-    internal static string StartupPath { get; } = Path.GetDirectoryName(Application.ExecutablePath);
+    internal static string StartupPath { get; } = Path.GetDirectoryName(Application.ExecutablePath)!;
     internal static string CachePath { get; } = Path.Combine(StartupPath, "cache");
     internal static string ImageCachePath { get; } = Path.Combine(CachePath, "images");
     internal static string AudioCachePath { get; } = Path.Combine(CachePath, "audio");
@@ -117,19 +114,19 @@ public static class Variables
     /// <summary>
     /// Local API
     /// </summary>
-    internal static IRestServer LocalApiServer { get; set; } = null;
+    internal static IRestServer? LocalApiServer { get; set; } = null;
 
     /// <summary>
     /// Media
     /// </summary>
-    internal static MediaPlayer MediaPlayer { get; set; }
+    internal static MediaPlayer? MediaPlayer { get; set; }
 
     /// <summary>
     /// Config
     /// </summary>
-    internal static AppSettings AppSettings { get; set; }
-    internal static List<QuickAction> QuickActions { get; set; }
-    internal static List<AbstractCommand> Commands { get; set; }
-    internal static List<AbstractSingleValueSensor> SingleValueSensors { get; set; }
-    internal static List<AbstractMultiValueSensor> MultiValueSensors { get; set; }
+    internal static AppSettings? AppSettings { get; set; }
+    internal static List<QuickAction>? QuickActions { get; set; }
+    internal static List<AbstractCommand>? Commands { get; set; }
+    internal static List<AbstractSingleValueSensor>? SingleValueSensors { get; set; }
+    internal static List<AbstractMultiValueSensor>? MultiValueSensors { get; set; }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -36,7 +35,7 @@ public static class NativeMethods
         public Rectangle rcNormalPosition;
     }
 
-    internal static readonly IntPtr HWND_BROADCAST = new IntPtr(0xFFFF);
+    internal static readonly IntPtr HWND_BROADCAST = new(0xFFFF);
     internal const uint WM_SYSCOMMAND = 0x0112;
     internal const uint SC_MONITORPOWER = 0xF170;
 

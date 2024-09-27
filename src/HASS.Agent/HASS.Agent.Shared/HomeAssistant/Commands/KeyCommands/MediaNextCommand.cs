@@ -10,5 +10,18 @@ public class MediaNextCommand : KeyCommand
 {
     private const string DefaultName = "next";
 
-    public MediaNextCommand(string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(VirtualKeyShort.MEDIA_NEXT_TRACK, entityName ?? DefaultName, name ?? null, entityType, id) { }
+    public MediaNextCommand(
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        CommandEntityType entityType = CommandEntityType.Switch,
+        string? id = default
+    ) : base(
+        VirtualKeyShort.MEDIA_NEXT_TRACK,
+        entityName ?? DefaultName,
+        name ?? null,
+        entityType,
+        id
+    )
+    {
+    }
 }

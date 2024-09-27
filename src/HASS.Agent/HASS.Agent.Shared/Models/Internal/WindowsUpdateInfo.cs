@@ -14,7 +14,7 @@ public class WindowsUpdateInfoCollection
         foreach (var windowsUpdate in windowsUpdates) WindowsUpdates.Add(windowsUpdate);
     }
 
-    public List<WindowsUpdateInfo> WindowsUpdates { get; set; } = new List<WindowsUpdateInfo>();
+    public List<WindowsUpdateInfo> WindowsUpdates { get; set; } = new();
 }
 
 /// <summary>
@@ -29,9 +29,9 @@ public class WindowsUpdateInfo
 
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public List<string> KbArticleIDs { get; set; } = new List<string>();
+    public List<string> KbArticleIDs { get; set; } = new();
     public bool Hidden { get; set; }
     public string SupportUrl { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
-    public List<string> Categories { get; set; } = new List<string>();
+    public List<string> Categories { get; set; } = new();
 }

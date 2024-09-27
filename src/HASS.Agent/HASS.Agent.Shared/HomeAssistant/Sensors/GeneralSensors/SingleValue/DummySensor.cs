@@ -5,28 +5,35 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 /// <summary>
 /// Dummy sensor containing random values between 0 and 100
 /// </summary>
-public class DummySensor : AbstractSingleValueSensor
+public class DummySensor(
+    int? updateInterval = null,
+    string? entityName = DummySensor.DefaultName,
+    string? name = DummySensor.DefaultName,
+    string? id = default,
+    string? advancedSettings = default)
+    : AbstractSingleValueSensor(entityName ?? DefaultName, name ?? null, updateInterval ?? 5, id,
+        advancedSettings: advancedSettings)
 {
     private const string DefaultName = "dummy";
 
-    public DummySensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 5, id, advancedSettings: advancedSettings) { }
-
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
+        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             State_class = "measurement",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
         });
     }
 

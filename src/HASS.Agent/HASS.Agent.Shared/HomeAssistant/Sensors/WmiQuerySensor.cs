@@ -2,8 +2,6 @@
 using System.Globalization;
 using System.Management;
 using HASS.Agent.Shared.Models.HomeAssistant;
-using HASS.Agent.Shared.Models.Internal;
-using Newtonsoft.Json;
 
 namespace HASS.Agent.Shared.HomeAssistant.Sensors;
 
@@ -22,7 +20,24 @@ public class WmiQuerySensor : AbstractSingleValueSensor
     protected readonly ObjectQuery ObjectQuery;
     protected readonly ManagementObjectSearcher Searcher;
 
-    public WmiQuerySensor(string query, string scope = "", bool applyRounding = false, int? round = null, int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, false, advancedSettings)
+    public WmiQuerySensor(
+        string query,
+        string scope = "",
+        bool applyRounding = false,
+        int? round = null,
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default,
+        string? advancedSettings = default
+    ) : base(
+        entityName ?? DefaultName,
+        name ?? null,
+        updateInterval ?? 10,
+        id,
+        false,
+        advancedSettings
+    )
     {
         Query = query;
         Scope = scope;
@@ -33,34 +48,35 @@ public class WmiQuerySensor : AbstractSingleValueSensor
         ObjectQuery = new ObjectQuery(Query);
 
         // use either default or provided scope
-        var managementscope = !string.IsNullOrWhiteSpace(scope)
+        var managementScope = !string.IsNullOrWhiteSpace(scope)
             ? new ManagementScope(scope)
             : new ManagementScope(@"\\localhost\");
 
         // prepare searcher
-        Searcher = new ManagementObjectSearcher(managementscope, ObjectQuery);
+        Searcher = new ManagementObjectSearcher(managementScope, ObjectQuery);
     }
 
-    public void Dispose() => Searcher?.Dispose();
+    public void Dispose() => Searcher.Dispose();
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
-        if (Variables.MqttManager == null)
-            return null;
+        if (Variables.MqttManager == null) return null;
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
-        if (deviceConfig == null)
-            return null;
+        if (deviceConfig == null) return null;
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
-        {
-            EntityName = EntityName,
-            Name = Name,
-            Unique_id = Id,
-            Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{EntityName}/state",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
-        });
+        return AutoDiscoveryConfigModel ??
+               SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
+               {
+                   EntityName = EntityName,
+                   Name = Name,
+                   Unique_id = Id,
+                   Device = deviceConfig,
+                   State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/" +
+                                 $"{Domain}/{deviceConfig.Name}/{EntityName}/state",
+                   Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/" +
+                                        $"{Domain}/{deviceConfig.Name}/availability"
+               });
     }
 
     public override string GetState()
@@ -72,8 +88,7 @@ public class WmiQuerySensor : AbstractSingleValueSensor
         {
             try
             {
-                if (!string.IsNullOrEmpty(retValue))
-                    continue;
+                if (!string.IsNullOrEmpty(retValue)) continue;
 
                 using var managementObject = (ManagementObject)managementBaseObject;
                 foreach (var property in managementObject.Properties)
@@ -89,9 +104,11 @@ public class WmiQuerySensor : AbstractSingleValueSensor
         }
 
         // optionally apply rounding
-        if (ApplyRounding && Round != null && double.TryParse(retValue, out var dblValue))
+        if (ApplyRounding && Round != null &&
+            double.TryParse(retValue, out var dblValue))
         {
-            retValue = Math.Round(dblValue, (int)Round).ToString(CultureInfo.CurrentCulture);
+            retValue = Math.Round(dblValue, (int)Round)
+                .ToString(CultureInfo.CurrentCulture);
         }
 
         // done

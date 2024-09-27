@@ -12,8 +12,8 @@ public static class HardwareManager
 	public static void Initialize()
 	{
 		//Note(Amadeo): for "performance" reasons only GPU is selected below, enable additional ones if required by new sensors/commands
-		s_computer = new Computer()
-		{
+		s_computer = new Computer
+        {
 			IsCpuEnabled = false,
 			IsGpuEnabled = true,
 			IsMemoryEnabled = false,

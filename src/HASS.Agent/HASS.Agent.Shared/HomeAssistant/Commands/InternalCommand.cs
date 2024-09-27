@@ -13,7 +13,13 @@ public class InternalCommand : AbstractCommand
     public string State { get; protected set; }
     public string CommandConfig { get; protected set; }
 
-    public InternalCommand(string entityName = DefaultName, string name = DefaultName, string commandConfig = "", CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, entityType, id)
+    public InternalCommand(
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string commandConfig = "", 
+        CommandEntityType entityType = CommandEntityType.Switch, 
+        string? id = default) : 
+        base(entityName ?? DefaultName, name ?? null, entityType, id)
     {
         State = "OFF";
         CommandConfig = commandConfig;
@@ -44,7 +50,7 @@ public class InternalCommand : AbstractCommand
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        return new CommandDiscoveryConfigModel()
+        return new CommandDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

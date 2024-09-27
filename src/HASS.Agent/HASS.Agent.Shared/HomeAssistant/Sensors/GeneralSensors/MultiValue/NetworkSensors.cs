@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using ByteSizeLib;
 using HASS.Agent.Shared.Functions;
@@ -22,9 +23,15 @@ public class NetworkSensors : AbstractMultiValueSensor
     public string NetworkCard { get; protected set; }
     private readonly bool _useSpecificCard;
 
-    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
+    public sealed override Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new();
 
-    public NetworkSensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string networkCard = "*", string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id)
+    public NetworkSensors(
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string networkCard = "*",
+        string? id = default) :
+        base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id)
     {
         _updateInterval = updateInterval ?? 30;
 
@@ -34,15 +41,12 @@ public class NetworkSensors : AbstractMultiValueSensor
         UpdateSensorValues();
     }
 
-    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor)
-    {
-        if (!Sensors.ContainsKey(sensorId))
-            Sensors.Add(sensorId, sensor);
-        else
-            Sensors[sensorId] = sensor;
-    }
+    private void AddUpdateSensor(
+        string sensorId,
+        AbstractSingleValueSensor sensor) =>
+        Sensors[sensorId] = sensor;
 
-    public override sealed void UpdateSensorValues()
+    public sealed override void UpdateSensorValues()
     {
         var parentSensorSafeName = SharedHelperFunctions.GetSafeValue(EntityName);
 
@@ -53,96 +57,143 @@ public class NetworkSensors : AbstractMultiValueSensor
         {
             try
             {
-                if (nic == null)
+                if (nic == null!)
                     continue;
 
-                if (_useSpecificCard && nic.Id != NetworkCard)
+                if (ShouldSkipNic(nic))
                     continue;
 
-                var id = nic.Id.Replace("{", "").Replace("}", "").Replace("-", "").ToLower();
+                var id = GetNicId(nic);
                 if (string.IsNullOrWhiteSpace(id))
                     continue;
 
-                var networkInfo = new NetworkInfo
-                {
-                    Name = nic.Name,
-                    NetworkInterfaceType = nic.NetworkInterfaceType.ToString(),
-                    SpeedBitsPerSecond = nic.Speed,
-                    OperationalStatus = nic.OperationalStatus.ToString()
-                };
+                var networkInfo = CreateNetworkInfo(nic);
 
-                var interfaceStats = nic.GetIPv4Statistics();
-
-                networkInfo.DataReceivedMB = Math.Round(ByteSize.FromBytes(interfaceStats.BytesReceived).MegaBytes);
-                networkInfo.DataSentMB = Math.Round(ByteSize.FromBytes(interfaceStats.BytesSent).MegaBytes);
-                networkInfo.IncomingPacketsDiscarded = interfaceStats.IncomingPacketsDiscarded;
-                networkInfo.IncomingPacketsWithErrors = interfaceStats.IncomingPacketsWithErrors;
-                networkInfo.IncomingPacketsWithUnknownProtocol = interfaceStats.IncomingUnknownProtocolPackets;
-                networkInfo.OutgoingPacketsDiscarded = interfaceStats.OutgoingPacketsDiscarded;
-                networkInfo.OutgoingPacketsWithErrors = interfaceStats.OutgoingPacketsWithErrors;
-
-                var nicProperties = nic.GetIPProperties();
-
-                foreach (var unicast in nicProperties.UnicastAddresses)
-                {
-                    var ip = unicast.Address.ToString();
-                    if (!string.IsNullOrEmpty(ip) && !networkInfo.IpAddresses.Contains(ip))
-                        networkInfo.IpAddresses.Add(ip);
-
-                    var mac = nic.GetPhysicalAddress().ToString();
-                    if (!string.IsNullOrEmpty(mac) && !networkInfo.MacAddresses.Contains(mac))
-                        networkInfo.MacAddresses.Add(mac);
-                }
-
-                foreach (var gateway in nicProperties.GatewayAddresses)
-                {
-                    var gatewayAddress = gateway.Address.ToString();
-                    if (!string.IsNullOrEmpty(gatewayAddress) && !networkInfo.Gateways.Contains(gatewayAddress))
-                        networkInfo.Gateways.Add(gatewayAddress);
-                }
-
-                networkInfo.DhcpEnabled = nicProperties.GetIPv4Properties().IsDhcpEnabled;
-
-                foreach (var dhcp in nicProperties.DhcpServerAddresses)
-                {
-                    var dhcpAddress = dhcp.ToString();
-                    if (!string.IsNullOrEmpty(dhcpAddress) && !networkInfo.DhcpAddresses.Contains(dhcpAddress))
-                        networkInfo.DhcpAddresses.Add(dhcpAddress);
-                }
-
-                networkInfo.DnsEnabled = nicProperties.IsDnsEnabled;
-                networkInfo.DnsSuffix = nicProperties.DnsSuffix;
-
-                foreach (var dns in nicProperties.DnsAddresses)
-                {
-                    var dnsAddress = dns.ToString();
-                    if (!string.IsNullOrEmpty(dnsAddress) && !networkInfo.DnsAddresses.Contains(dnsAddress))
-                        networkInfo.DnsAddresses.Add(dnsAddress);
-                }
-
-                var info = JsonConvert.SerializeObject(networkInfo, Formatting.Indented);
-                var networkInfoEntityName = $"{parentSensorSafeName}_{id}";
-                var networkInfoId = $"{Id}_{id}";
-                var networkInfoSensor = new DataTypeStringSensor(_updateInterval, networkInfoEntityName, nic.Name, networkInfoId, string.Empty, "mdi:lan", string.Empty, EntityName, true);
-
-                networkInfoSensor.SetState(nic.OperationalStatus.ToString());
-                networkInfoSensor.SetAttributes(info);
-                AddUpdateSensor(networkInfoId, networkInfoSensor);
-
+                AddNetworkInfoSensor(parentSensorSafeName, id, networkInfo, nic);
                 nicCount++;
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "[NETWORK] [{name}] Error querying NIC: {msg}", EntityName, ex.Message);
+                Log.Fatal(ex, "[NETWORK] [{name}] Error querying NIC: {msg}",
+                    EntityName, ex.Message);
             }
         }
 
+        AddNicCountSensor(parentSensorSafeName, nicCount);
+    }
+
+    private bool ShouldSkipNic(NetworkInterface nic) => 
+        _useSpecificCard && nic.Id != NetworkCard;
+
+    private static string GetNicId(NetworkInterface nic) => 
+        nic.Id.Replace("{", "").Replace("}", "").Replace("-", "").ToLower();
+
+    private NetworkInfo CreateNetworkInfo(NetworkInterface nic)
+    {
+        var networkInfo = new NetworkInfo
+        {
+            Name = nic.Name,
+            NetworkInterfaceType = nic.NetworkInterfaceType.ToString(),
+            SpeedBitsPerSecond = nic.Speed,
+            OperationalStatus = nic.OperationalStatus.ToString()
+        };
+
+        var interfaceStats = nic.GetIPv4Statistics();
+        networkInfo.DataReceivedMB = Math.Round(
+            ByteSize.FromBytes(interfaceStats.BytesReceived).MegaBytes);
+        networkInfo.DataSentMB = Math.Round(
+            ByteSize.FromBytes(interfaceStats.BytesSent).MegaBytes);
+        networkInfo.IncomingPacketsDiscarded = interfaceStats.IncomingPacketsDiscarded;
+        networkInfo.IncomingPacketsWithErrors = interfaceStats.IncomingPacketsWithErrors;
+        networkInfo.IncomingPacketsWithUnknownProtocol = interfaceStats.IncomingUnknownProtocolPackets;
+        networkInfo.OutgoingPacketsDiscarded = interfaceStats.OutgoingPacketsDiscarded;
+        networkInfo.OutgoingPacketsWithErrors = interfaceStats.OutgoingPacketsWithErrors;
+
+        PopulateNetworkProperties(nic, networkInfo);
+
+        return networkInfo;
+    }
+
+    private static void PopulateNetworkProperties(
+        NetworkInterface nic, 
+        NetworkInfo networkInfo)
+    {
+        var nicProperties = nic.GetIPProperties();
+
+        foreach (var unicast in nicProperties.UnicastAddresses)
+        {
+            var ip = unicast.Address.ToString();
+            if (!string.IsNullOrEmpty(ip) && !networkInfo.IpAddresses.Contains(ip))
+                networkInfo.IpAddresses.Add(ip);
+
+            var mac = nic.GetPhysicalAddress().ToString();
+            if (!string.IsNullOrEmpty(mac) && !networkInfo.MacAddresses.Contains(mac))
+                networkInfo.MacAddresses.Add(mac);
+        }
+
+        networkInfo.Gateways.AddRange(GetPopulatedProperties(
+            nicProperties.GatewayAddresses, gw => gw.Address.ToString()));
+        networkInfo.DhcpAddresses.AddRange(GetPopulatedProperties(
+            nicProperties.DhcpServerAddresses, dhcp => dhcp.ToString()));
+        networkInfo.DhcpEnabled = nicProperties.GetIPv4Properties().IsDhcpEnabled;
+        networkInfo.DnsAddresses.AddRange(GetPopulatedProperties(
+            nicProperties.DnsAddresses, dns => dns.ToString()));
+        networkInfo.DnsEnabled = nicProperties.IsDnsEnabled;
+        networkInfo.DnsSuffix = nicProperties.DnsSuffix;
+    }
+
+    private static List<string> GetPopulatedProperties<T>(
+        IEnumerable<T> addresses,
+        Func<T, string> selector)
+    {
+        return addresses.Select(selector)
+            .Where(address => !string.IsNullOrEmpty(address))
+            .ToList();
+    }
+
+    private void AddNetworkInfoSensor(string parentSensorSafeName, string id,
+        NetworkInfo networkInfo,
+        NetworkInterface nic)
+    {
+        var networkInfoEntityName = $"{parentSensorSafeName}_{id}";
+        var networkInfoId = $"{Id}_{id}";
+        var networkInfoSensor = new DataTypeStringSensor(
+            _updateInterval,
+            networkInfoEntityName,
+            nic.Name,
+            networkInfoId,
+            string.Empty,
+            "mdi:lan",
+            string.Empty,
+            EntityName,
+            true);
+
+        networkInfoSensor.SetState(nic.OperationalStatus.ToString());
+
+        var info = JsonConvert.SerializeObject(networkInfo, Formatting.Indented);
+        networkInfoSensor.SetAttributes(info);
+
+        AddUpdateSensor(networkInfoId, networkInfoSensor);
+    }
+
+    private void AddNicCountSensor(string parentSensorSafeName, int nicCount)
+    {
         var nicCountEntityName = $"{parentSensorSafeName}_total_network_card_count";
         var nicCountId = $"{Id}_total_network_card_count";
-        var nicCountSensor = new DataTypeIntSensor(_updateInterval, nicCountEntityName, "Network Card Count", nicCountId, string.Empty, "measurement", "mdi:lan", string.Empty, EntityName);
+        var nicCountSensor = new DataTypeIntSensor(
+            _updateInterval,
+            nicCountEntityName,
+            "Network Card Count",
+            nicCountId,
+            string.Empty,
+            "measurement",
+            "mdi:lan",
+            string.Empty,
+            EntityName);
+
         nicCountSensor.SetState(nicCount);
         AddUpdateSensor(nicCountId, nicCountSensor);
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig() => null;
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig() => null;
 }

@@ -12,7 +12,7 @@ namespace HASS.Agent.Shared.Models.HomeAssistant;
 /// </summary>
 public abstract class AbstractSingleValueSensor : AbstractDiscoverable
 {
-    private SensorAdvancedSettings _advancedInfo;
+    private SensorAdvancedSettings? _advancedInfo;
 
     public int UpdateIntervalSeconds { get; protected set; }
     public DateTime? LastUpdated { get; protected set; }
@@ -20,39 +20,44 @@ public abstract class AbstractSingleValueSensor : AbstractDiscoverable
     public string PreviousPublishedState { get; protected set; } = string.Empty;
     public string PreviousPublishedAttributes { get; protected set; } = string.Empty;
 
-    public string AdvancedSettings { get; private set; }
+    public string? AdvancedSettings { get; private set; }
 
-    protected AbstractSingleValueSensor(string entityName, string name, int updateIntervalSeconds = 10, string id = default, bool useAttributes = false, string advancedSettings = default)
+    protected AbstractSingleValueSensor(
+        string entityName, 
+        string? name, 
+        int updateIntervalSeconds = 10, 
+        string? id = default, 
+        bool useAttributes = false, 
+        string? advancedSettings = default)
     {
-        Id = id == null || id == Guid.Empty.ToString() ? Guid.NewGuid().ToString() : id;
+        Id = id == null || id == Guid.Empty.ToString() 
+            ? Guid.NewGuid().ToString() : id;
         EntityName = entityName;
         Name = name;
         UpdateIntervalSeconds = updateIntervalSeconds;
         Domain = "sensor";
         UseAttributes = useAttributes;
 
-        if (!string.IsNullOrWhiteSpace(advancedSettings))
-        {
-            AdvancedSettings = advancedSettings;
-            _advancedInfo = JsonConvert.DeserializeObject<SensorAdvancedSettings>(advancedSettings);
-        }
+        if (string.IsNullOrWhiteSpace(advancedSettings)) return;
+        
+        AdvancedSettings = advancedSettings;
+        _advancedInfo = JsonConvert.DeserializeObject<SensorAdvancedSettings>(advancedSettings);
     }
 
-    protected SensorDiscoveryConfigModel AutoDiscoveryConfigModel;
+    protected SensorDiscoveryConfigModel? AutoDiscoveryConfigModel;
     protected SensorDiscoveryConfigModel SetAutoDiscoveryConfigModel(SensorDiscoveryConfigModel config)
     {
         AutoDiscoveryConfigModel = config;
 
+        if (_advancedInfo == null) return AutoDiscoveryConfigModel;
+
         // overwrite with advanced settings
-        if (_advancedInfo != null)
-        {
-            if (!string.IsNullOrWhiteSpace(_advancedInfo.DeviceClass))
-                AutoDiscoveryConfigModel.Device_class = _advancedInfo.DeviceClass;
-            if (!string.IsNullOrWhiteSpace(_advancedInfo.UnitOfMeasurement))
-                AutoDiscoveryConfigModel.Unit_of_measurement = _advancedInfo.UnitOfMeasurement;
-            if (!string.IsNullOrWhiteSpace(_advancedInfo.StateClass))
-                AutoDiscoveryConfigModel.State_class = _advancedInfo.StateClass;
-        }
+        if (!string.IsNullOrWhiteSpace(_advancedInfo.DeviceClass))
+            AutoDiscoveryConfigModel.Device_class = _advancedInfo.DeviceClass;
+        if (!string.IsNullOrWhiteSpace(_advancedInfo.UnitOfMeasurement))
+            AutoDiscoveryConfigModel.Unit_of_measurement = _advancedInfo.UnitOfMeasurement;
+        if (!string.IsNullOrWhiteSpace(_advancedInfo.StateClass))
+            AutoDiscoveryConfigModel.State_class = _advancedInfo.StateClass;
 
         return AutoDiscoveryConfigModel;
     }

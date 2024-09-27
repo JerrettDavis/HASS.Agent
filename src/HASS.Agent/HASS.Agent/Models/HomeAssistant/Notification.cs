@@ -31,9 +31,9 @@ public class NotificationData
     public bool Sticky { get; set; }
     public string Importance { get; set; } = string.Empty;
 
-    public List<NotificationAction> Actions { get; set; } = new List<NotificationAction>();
+    public List<NotificationAction> Actions { get; set; } = new();
 
-    public List<NotificationInput> Inputs { get; set; } = new List<NotificationInput>();
+    public List<NotificationInput> Inputs { get; set; } = new();
 }
 
 public class Notification

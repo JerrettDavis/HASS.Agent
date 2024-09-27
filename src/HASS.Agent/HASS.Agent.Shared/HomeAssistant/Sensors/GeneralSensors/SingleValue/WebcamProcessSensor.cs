@@ -19,7 +19,7 @@ public class WebcamProcessSensor : AbstractSingleValueSensor
         //
     }
 
-    private readonly Dictionary<string, string> _processes = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _processes = new();
 
     private string _attributes = string.Empty;
 
@@ -34,7 +34,7 @@ public class WebcamProcessSensor : AbstractSingleValueSensor
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        var model = new SensorDiscoveryConfigModel()
+        var model = new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

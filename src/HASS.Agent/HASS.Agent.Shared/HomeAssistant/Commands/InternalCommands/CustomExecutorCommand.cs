@@ -13,7 +13,19 @@ public class CustomExecutorCommand : InternalCommand
 {
     private const string DefaultName = "customexecutor";
 
-    public CustomExecutorCommand(string entityName = DefaultName, string name = DefaultName, string command = "", CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, command, entityType, id)
+    public CustomExecutorCommand(
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string command = "",
+        CommandEntityType entityType = CommandEntityType.Switch,
+        string? id = default
+    ) : base(
+        entityName ?? DefaultName,
+        name ?? null,
+        command,
+        entityType,
+        id
+    )
     {
         CommandConfig = command;
         State = "OFF";
@@ -25,7 +37,10 @@ public class CustomExecutorCommand : InternalCommand
 
         if (string.IsNullOrWhiteSpace(CommandConfig))
         {
-            Log.Warning("[CUSTOMEXECUTOR] [{name}] Unable to launch command, it's configured as action-only", EntityName, EntityName);
+            Log.Warning(
+                "[CUSTOMEXECUTOR] [{name}] Unable to launch command, it's configured as action-only",
+                EntityName
+            );
 
             State = "OFF";
             return;
@@ -36,14 +51,20 @@ public class CustomExecutorCommand : InternalCommand
             // is there a custom executor provided?
             if (string.IsNullOrEmpty(Variables.CustomExecutorBinary))
             {
-                Log.Warning("[CUSTOMEXECUTOR] [{name}] No custom executor provided, unable to execute", EntityName);
+                Log.Warning(
+                    "[CUSTOMEXECUTOR] [{name}] No custom executor provided, unable to execute",
+                    EntityName
+                );
                 return;
             }
 
             // does the binary still exist?
             if (!File.Exists(Variables.CustomExecutorBinary))
             {
-                Log.Error("[CUSTOMEXECUTOR] [{name}] Provided custom executor not found: {file}", EntityName, Variables.CustomExecutorBinary);
+                Log.Error(
+                    "[CUSTOMEXECUTOR] [{name}] Provided custom executor not found: {file}",
+                    EntityName, Variables.CustomExecutorBinary
+                );
                 return;
             }
 
@@ -61,13 +82,20 @@ public class CustomExecutorCommand : InternalCommand
             var start = process.Start();
 
             // check if the start went ok
-            if (!start) Log.Error("[CUSTOMEXECUTOR] [{name}] Unable to start executing command: {command}", EntityName, CommandConfig);
-
-            // yep, done
+            if (!start)
+            {
+                Log.Error(
+                    "[CUSTOMEXECUTOR] [{name}] Unable to start executing command: {command}",
+                    EntityName, CommandConfig
+                );
+            }
         }
         catch (Exception ex)
         {
-            Log.Error("[CUSTOMEXECUTOR] [{name}] Error while processing: {err}", EntityName, ex.Message);
+            Log.Error(
+                "[CUSTOMEXECUTOR] [{name}] Error while processing: {err}",
+                EntityName, ex.Message
+            );
         }
         finally
         {
@@ -84,19 +112,27 @@ public class CustomExecutorCommand : InternalCommand
             // is there a custom executor provided?
             if (string.IsNullOrEmpty(Variables.CustomExecutorBinary))
             {
-                Log.Warning("[CUSTOMEXECUTOR] [{name}] No custom executor provided, unable to execute", EntityName);
+                Log.Warning(
+                    "[CUSTOMEXECUTOR] [{name}] No custom executor provided, unable to execute",
+                    EntityName
+                );
                 return;
             }
 
             // does the binary still exist?
             if (!File.Exists(Variables.CustomExecutorBinary))
             {
-                Log.Error("[CUSTOMEXECUTOR] [{name}] Provided custom executor not found: {file}", EntityName, Variables.CustomExecutorBinary);
+                Log.Error(
+                    "[CUSTOMEXECUTOR] [{name}] Provided custom executor not found: {file}",
+                    EntityName, Variables.CustomExecutorBinary
+                );
                 return;
             }
 
             // prepare arguments
-            var args = string.IsNullOrWhiteSpace(CommandConfig) ? action : $"{CommandConfig} {action}";
+            var args = string.IsNullOrWhiteSpace(CommandConfig)
+                ? action
+                : $"{CommandConfig} {action}";
 
             // all good, launch
             using var process = new Process();
@@ -112,13 +148,21 @@ public class CustomExecutorCommand : InternalCommand
             var start = process.Start();
 
             // check if the start went ok
-            if (!start) Log.Error("[CUSTOMEXECUTOR] [{name}] Unable to start executing command with action '{action}'", CommandConfig, action);
-
-            // yep, done
+            if (!start)
+            {
+                Log.Error(
+                    "[CUSTOMEXECUTOR] [{name}] Unable to start executing command " +
+                    "with action '{action}'",
+                    CommandConfig, action
+                );
+            }
         }
         catch (Exception ex)
         {
-            Log.Error("[CUSTOMEXECUTOR] [{name}] Error while processing custom executor: {err}", EntityName, ex.Message);
+            Log.Error(
+                "[CUSTOMEXECUTOR] [{name}] Error while processing custom executor: {err}",
+                EntityName, ex.Message
+            );
         }
         finally
         {

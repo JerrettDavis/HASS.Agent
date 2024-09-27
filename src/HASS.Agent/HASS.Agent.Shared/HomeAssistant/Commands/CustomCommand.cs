@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using HASS.Agent.Shared.Enums;
 using HASS.Agent.Shared.Managers;
 using HASS.Agent.Shared.Models.HomeAssistant;
@@ -9,21 +10,22 @@ namespace HASS.Agent.Shared.HomeAssistant.Commands;
 /// <summary>
 /// Command to perform an action through a console, either normal or with low integrity
 /// </summary>
-public class CustomCommand : AbstractCommand
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
+public class CustomCommand(
+    string command,
+    bool runAsLowIntegrity,
+    string? entityName = CustomCommand.DefaultName,
+    string? name = CustomCommand.DefaultName,
+    CommandEntityType entityType = CommandEntityType.Switch,
+    string? id = default)
+    : AbstractCommand(entityName ?? DefaultName, name ?? null, entityType, id)
 {
     private const string DefaultName = "custom";
         
-    public string Command { get; protected set; }
-    public string State { get; protected set; }
-    public bool RunAsLowIntegrity { get; protected set; }
-    public Process Process { get; set; } = null;
-
-    public CustomCommand(string command, bool runAsLowIntegrity, string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, entityType, id)
-    {
-        Command = command;
-        RunAsLowIntegrity = runAsLowIntegrity;
-        State = "OFF";
-    }
+    public string Command { get; protected set; } = command;
+    public string State { get; protected set; } = "OFF";
+    public bool RunAsLowIntegrity { get; protected set; } = runAsLowIntegrity;
+    public Process? Process { get; set; } = null;
 
     public override void TurnOn()
     {
@@ -67,14 +69,14 @@ public class CustomCommand : AbstractCommand
         State = "OFF";
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        return new CommandDiscoveryConfigModel()
+        return new CommandDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

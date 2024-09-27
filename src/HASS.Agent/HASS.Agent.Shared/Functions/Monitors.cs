@@ -23,7 +23,7 @@ public class Monitors
 
     private const int ENUM_CURRENT_SETTINGS = -1;
 
-    public Rectangle PhysicalBounds => new Rectangle(_device.dmPositionX, _device.dmPositionY, _device.dmPelsWidth, _device.dmPelsHeight);
+    public Rectangle PhysicalBounds => new(_device.dmPositionX, _device.dmPositionY, _device.dmPelsWidth, _device.dmPelsHeight);
 
     public Rectangle Bounds => _screen.Bounds;
 

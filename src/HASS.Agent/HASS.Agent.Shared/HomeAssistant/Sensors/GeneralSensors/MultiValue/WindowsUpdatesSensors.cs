@@ -16,7 +16,7 @@ public class WindowsUpdatesSensors : AbstractMultiValueSensor
     private const string DefaultName = "windowsupdates";
     private readonly int _updateInterval;
 
-    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
+    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new();
 
     public WindowsUpdatesSensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 900, id)
     {

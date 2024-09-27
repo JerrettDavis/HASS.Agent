@@ -25,12 +25,12 @@ public class NetworkInfo
     public double IncomingPacketsWithUnknownProtocol { get; set; } = 0d;
     public double OutgoingPacketsDiscarded { get; set; } = 0d;
     public double OutgoingPacketsWithErrors { get; set; } = 0d;
-    public List<string> IpAddresses { get; set; } = new List<string>();
-    public List<string> MacAddresses { get; set; } = new List<string>();
-    public List<string> Gateways { get; set; } = new List<string>();
+    public List<string> IpAddresses { get; set; } = new();
+    public List<string> MacAddresses { get; set; } = new();
+    public List<string> Gateways { get; set; } = new();
     public bool DhcpEnabled { get; set; }
-    public List<string> DhcpAddresses { get; set; } = new List<string>();
+    public List<string> DhcpAddresses { get; set; } = new();
     public bool DnsEnabled { get; set; }
     public string DnsSuffix { get; set; } = string.Empty;
-    public List<string> DnsAddresses { get; set; } = new List<string>();
+    public List<string> DnsAddresses { get; set; } = new();
 }

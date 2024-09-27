@@ -9,7 +9,15 @@ public class CpuLoadSensor : PerformanceCounterSensor
 {
     private const string DefaultName = "cpuload";
 
-    public CpuLoadSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, bool applyRounding = false, int? round = null, string advancedSettings = default) : base("Processor", "% Processor Time", "_Total", applyRounding, round, updateInterval ?? 30, entityName ?? DefaultName, name ?? null, id, advancedSettings: advancedSettings) { }
+    public CpuLoadSensor(
+        int? updateInterval = null, 
+        string entityName = DefaultName, 
+        string? name = DefaultName, 
+        string? id = default, 
+        bool applyRounding = false, 
+        int? round = null, 
+        string? advancedSettings = default) : 
+        base("Processor", "% Processor Time", "_Total", applyRounding, round, updateInterval ?? 30, entityName ?? DefaultName, name ?? null, id, advancedSettings: advancedSettings) { }
 
     public override DiscoveryConfigModel GetAutoDiscoveryConfig()
     {
@@ -20,7 +28,7 @@ public class CpuLoadSensor : PerformanceCounterSensor
 
         var asd = ObjectId;
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
+        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

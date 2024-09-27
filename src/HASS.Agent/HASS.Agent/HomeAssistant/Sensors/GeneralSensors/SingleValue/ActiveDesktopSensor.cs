@@ -44,7 +44,7 @@ public class ActiveDesktopSensor : AbstractSingleValueSensor
             return null;
         }
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
+        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

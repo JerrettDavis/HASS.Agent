@@ -21,7 +21,7 @@ public class StorageSensors : AbstractMultiValueSensor
     private const string DefaultName = "storage";
     private readonly int _updateInterval;
 
-    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
+    public override sealed Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new();
 
     public StorageSensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id)
     {

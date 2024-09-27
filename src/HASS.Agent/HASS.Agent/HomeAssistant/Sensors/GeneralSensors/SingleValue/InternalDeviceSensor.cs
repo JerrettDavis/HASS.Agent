@@ -34,7 +34,7 @@ public class InternalDeviceSensor : AbstractSingleValueSensor
         if (deviceConfig == null)
             return null;
 
-        var sensorDiscoveryConfigModel = new SensorDiscoveryConfigModel()
+        var sensorDiscoveryConfigModel = new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,

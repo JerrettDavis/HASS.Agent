@@ -472,7 +472,7 @@ public class MqttManager : IMqttManager
 
     public static readonly JsonSerializerSettings JsonSerializerSettings = new()
     {
-        ContractResolver = new DefaultContractResolver()
+        ContractResolver = new DefaultContractResolver
         {
             NamingStrategy = new ToLowerInvariantNamingStrategy()
         },
@@ -735,7 +735,7 @@ public class MqttManager : IMqttManager
                 certificates.Add(new X509Certificate2(Variables.AppSettings.MqttClientCertificate));
         }
 
-        var clientTlsOptions = new MqttClientTlsOptions()
+        var clientTlsOptions = new MqttClientTlsOptions
         {
             UseTls = Variables.AppSettings.MqttUseTls,
             AllowUntrustedCertificates = Variables.AppSettings.MqttAllowUntrustedCertificates,

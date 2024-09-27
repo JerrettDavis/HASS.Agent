@@ -6,40 +6,57 @@ using Serilog;
 namespace HASS.Agent.Shared.HomeAssistant.Sensors.WmiSensors.SingleValue;
 
 /// <summary>
-/// Sensor indicating the CPU's (advertised) clockspeed
+/// Sensor indicating the CPU's (advertised) clock speed
 /// </summary>
-public class CurrentClockSpeedSensor : WmiQuerySensor
+public class CurrentClockSpeedSensor(
+    int? updateInterval = null,
+    string? entityName = CurrentClockSpeedSensor.DefaultName,
+    string? name = CurrentClockSpeedSensor.DefaultName,
+    string? id = default,
+    bool applyRounding = false,
+    int? round = null,
+    string? advancedSettings = default)
+    : WmiQuerySensor(string.Empty,
+        string.Empty,
+        applyRounding,
+        round,
+        updateInterval ?? 300,
+        entityName ?? DefaultName,
+        name ?? null,
+        id,
+        advancedSettings: advancedSettings)
 {
     private const string DefaultName = "currentclockspeed";
 
-    private readonly ManagementObject _managementObject;
+    private readonly ManagementObject _managementObject = new("Win32_Processor.DeviceID='CPU0'");
 
     private protected DateTime LastFetched = DateTime.MinValue;
     private protected string LastValue = string.Empty;
 
-    public CurrentClockSpeedSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, bool applyRounding = false, int? round = null, string advancedSettings = default) : base(string.Empty, string.Empty, applyRounding, round, updateInterval ?? 300, entityName ?? DefaultName, name ?? null, id, advancedSettings: advancedSettings) 
-        => _managementObject = new ManagementObject("Win32_Processor.DeviceID='CPU0'");
-
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
-        {
-            EntityName = EntityName,
-            Name = Name,
-            Unique_id = Id,
-            Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
-            State_class = "measurement",
-            Device_class = "frequency",
-            Icon = "mdi:speedometer",
-            Unit_of_measurement = "MHz",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
-        });
+        return AutoDiscoveryConfigModel ??
+               SetAutoDiscoveryConfigModel(
+                   new SensorDiscoveryConfigModel
+                   {
+                       EntityName = EntityName,
+                       Name = Name,
+                       Unique_id = Id,
+                       Device = deviceConfig,
+                       State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/" +
+                                     $"{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+                       State_class = "measurement",
+                       Device_class = "frequency",
+                       Icon = "mdi:speedometer",
+                       Unit_of_measurement = "MHz",
+                       Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/" +
+                                            $"{Domain}/{deviceConfig.Name}/availability"
+                   });
     }
 
     public override string GetState()
@@ -47,17 +64,20 @@ public class CurrentClockSpeedSensor : WmiQuerySensor
         try
         {
             // we're caching this, too heavy
-            if ((DateTime.Now - LastFetched).TotalHours < 1 && !string.IsNullOrEmpty(LastValue)) return LastValue;
-            LastFetched = DateTime.Now;
+            if ((DateTime.Now - LastFetched).TotalHours < 1 &&
+                !string.IsNullOrEmpty(LastValue)) return LastValue;
 
+            LastFetched = DateTime.Now;
             var speed = (uint)(_managementObject["CurrentClockSpeed"]);
             LastValue = speed.ToString();
-
             return LastValue;
         }
         catch (Exception ex)
         {
-            Log.Error("[CURRENTCLOCKSPEED] [{name}] Error getting current clockspeed: {msg}", EntityName, ex.Message);
+            Log.Error(
+                "[CURRENTCLOCKSPEED] [{name}] Error getting current clock speed: {msg}",
+                EntityName, ex.Message
+            );
             return "0";
         }
     }

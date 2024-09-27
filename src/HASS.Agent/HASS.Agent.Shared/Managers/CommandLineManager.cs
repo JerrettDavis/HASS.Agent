@@ -439,7 +439,7 @@ public static class CommandLineManager
     private const int SWFO_NEEDDISPATCH = 1;
     private const int SW_SHOWNORMAL = 1;
     private const int SVGIO_BACKGROUND = 0;
-    private static readonly Guid SID_STopLevelBrowser = new Guid("4C96BE40-915C-11CF-99D3-00AA004AE837");
+    private static readonly Guid SID_STopLevelBrowser = new("4C96BE40-915C-11CF-99D3-00AA004AE837");
 
     [ComImport]
     [Guid("9BA05972-F6A8-11CF-A442-00A0C90A8F39")]
@@ -725,7 +725,7 @@ internal class NativeMethod
     internal const int ERROR_INSUFFICIENT_BUFFER = 122;
 
     // Integrity Levels
-    internal static SID_IDENTIFIER_AUTHORITY SECURITY_MANDATORY_LABEL_AUTHORITY = new SID_IDENTIFIER_AUTHORITY(new byte[] { 0, 0, 0, 0, 0, 16 });
+    internal static SID_IDENTIFIER_AUTHORITY SECURITY_MANDATORY_LABEL_AUTHORITY = new(new byte[] { 0, 0, 0, 0, 0, 16 });
     internal const int SECURITY_MANDATORY_UNTRUSTED_RID = 0x00000000;
     internal const int SECURITY_MANDATORY_LOW_RID = 0x00001000;
     internal const int SECURITY_MANDATORY_MEDIUM_RID = 0x00002000;
@@ -1067,10 +1067,10 @@ internal class NativeMethod
 /// </summary>
 internal class KnownFolder
 {
-    private static readonly Guid LocalAppDataGuid = new Guid("F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+    private static readonly Guid LocalAppDataGuid = new("F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
     internal static string LocalAppData => SHGetKnownFolderPath(LocalAppDataGuid);
 
-    private static readonly Guid LocalAppDataLowGuid = new Guid("A520A1A4-1780-4FF6-BD18-167343C5AF16");
+    private static readonly Guid LocalAppDataLowGuid = new("A520A1A4-1780-4FF6-BD18-167343C5AF16");
     internal static string LocalAppDataLow => SHGetKnownFolderPath(LocalAppDataLowGuid);
 
     /// <summary>

@@ -13,12 +13,12 @@ internal class Variables
     /// <summary>
     /// public references
     /// </summary>
-    internal static Random Rnd { get; } = new Random();
+    internal static Random Rnd { get; } = new();
 
     /// <summary>
     /// MQTT
     /// </summary>
-    internal static IMqttManager MqttManager { get; set; }
+    internal static IMqttManager? MqttManager { get; set; }
 
     /// <summary>
     /// Settings

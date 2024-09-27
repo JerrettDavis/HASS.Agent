@@ -17,22 +17,29 @@ public class DisplaySensors : AbstractMultiValueSensor
     private const string DefaultName = "display";
     private readonly int _updateInterval;
 
-    public sealed override Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new Dictionary<string, AbstractSingleValueSensor>();
+    public sealed override Dictionary<string, AbstractSingleValueSensor> Sensors 
+    { get; protected set; } = new();
 
-    public DisplaySensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id)
+    public DisplaySensors(
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default
+    ) : base(
+        entityName ?? DefaultName,
+        name ?? null,
+        updateInterval ?? 30,
+        id
+    )
     {
         _updateInterval = updateInterval ?? 30;
-
         UpdateSensorValues();
     }
 
-    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor)
-    {
-        if (!Sensors.ContainsKey(sensorId))
-            Sensors.Add(sensorId, sensor);
-        else
-            Sensors[sensorId] = sensor;
-    }
+    private void AddUpdateSensor(
+        string sensorId,
+        AbstractSingleValueSensor sensor) => 
+        Sensors[sensorId] = sensor;
 
     public sealed override void UpdateSensorValues()
     {
@@ -48,7 +55,17 @@ public class DisplaySensors : AbstractMultiValueSensor
         var displayCount = displays.Length;
         var displayCountEntityName = $"{parentSensorSafeName}_display_count";
         var displayCountId = $"{Id}_display_count";
-        var displayCountSensor = new DataTypeIntSensor(_updateInterval, displayCountEntityName, "Display Count", displayCountId, string.Empty, "measurement", "mdi:monitor", string.Empty, EntityName);
+        var displayCountSensor = new DataTypeIntSensor(
+            _updateInterval,
+            displayCountEntityName,
+            "Display Count",
+            displayCountId,
+            string.Empty,
+            "measurement",
+            "mdi:monitor",
+            string.Empty,
+            EntityName
+        );
         displayCountSensor.SetState(displayCount);
         AddUpdateSensor(displayCountId, displayCountSensor);
 
@@ -57,7 +74,16 @@ public class DisplaySensors : AbstractMultiValueSensor
 
         var primaryDisplayEntityName = $"{parentSensorSafeName}_primary_display";
         var primaryDisplayId = $"{Id}_primary_display";
-        var primaryDisplaySensor = new DataTypeStringSensor(_updateInterval, primaryDisplayEntityName, "Primary Display", primaryDisplayId, string.Empty, "mdi:monitor", string.Empty, EntityName);
+        var primaryDisplaySensor = new DataTypeStringSensor(
+            _updateInterval,
+            primaryDisplayEntityName,
+            "Primary Display",
+            primaryDisplayId,
+            string.Empty,
+            "mdi:monitor",
+            string.Empty,
+            EntityName
+        );
         primaryDisplaySensor.SetState(primaryDisplayStr);
         AddUpdateSensor(primaryDisplayId, primaryDisplaySensor);
 
@@ -82,7 +108,8 @@ public class DisplaySensors : AbstractMultiValueSensor
             if (monitors.Any(x => x.Name == name))
             {
                 var monitor = monitors.Find(x => x.Name == name);
-                resolution = $"{monitor.PhysicalBounds.Width}x{monitor.PhysicalBounds.Height}";
+                resolution = 
+                    $"{monitor.PhysicalBounds.Width}x{monitor.PhysicalBounds.Height}";
                 width = monitor.PhysicalBounds.Width;
                 height = monitor.PhysicalBounds.Height;
                 rotated = monitor.RotatedDegrees;
@@ -99,7 +126,8 @@ public class DisplaySensors : AbstractMultiValueSensor
                 VirtualHeight = virtualHeight,
                 BitsPerPixel = display.BitsPerPixel,
                 PrimaryDisplay = display.Primary,
-                WorkingArea = $"{display.WorkingArea.Width}x{display.WorkingArea.Height}",
+                WorkingArea = 
+                    $"{display.WorkingArea.Width}x{display.WorkingArea.Height}",
                 WorkingAreaWidth = display.WorkingArea.Width,
                 WorkingAreaHeight = display.WorkingArea.Height,
                 RotatedDegrees = rotated
@@ -108,12 +136,22 @@ public class DisplaySensors : AbstractMultiValueSensor
             var info = JsonConvert.SerializeObject(displayInfo, Formatting.Indented);
             var displayInfoEntityName = $"{parentSensorSafeName}_{id}";
             var displayInfoId = $"{Id}_{id}";
-            var displayInfoSensor = new DataTypeStringSensor(_updateInterval, displayInfoId, name, displayInfoId, string.Empty, "mdi:monitor", string.Empty, EntityName, true);
+            var displayInfoSensor = new DataTypeStringSensor(
+                _updateInterval,
+                displayInfoEntityName,
+                name,
+                displayInfoId,
+                string.Empty,
+                "mdi:monitor",
+                string.Empty,
+                EntityName,
+                true
+            );
             displayInfoSensor.SetState(name);
             displayInfoSensor.SetAttributes(info);
             AddUpdateSensor(displayInfoId, displayInfoSensor);
         }
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig() => null;
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig() => null;
 }

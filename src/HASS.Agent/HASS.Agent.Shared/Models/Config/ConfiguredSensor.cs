@@ -30,7 +30,7 @@ public class ConfiguredSensor
 
     public static ConfiguredSensor FromLAB02(ConfiguredSensorLAB02 oldConfig)
     {
-        return new ConfiguredSensor()
+        return new ConfiguredSensor
         {
             Type = oldConfig.Type,
             Id = oldConfig.Id,
@@ -50,7 +50,7 @@ public class ConfiguredSensor
 
     public static ConfiguredSensor From2023Beta(ConfiguredSensor2023Beta oldConfig)
     {
-        return new ConfiguredSensor()
+        return new ConfiguredSensor
         {
             Type = oldConfig.Type,
             Id = oldConfig.Id,

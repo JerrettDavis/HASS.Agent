@@ -11,54 +11,57 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 /// </summary>
 public class GpuLoadSensor : AbstractSingleValueSensor
 {
-	private const string DefaultName = "gpuload";
-	private readonly IHardware _gpu;
+    private const string DefaultName = "gpuload";
+    private readonly IHardware? _gpu;
 
-	public GpuLoadSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
-	{
-		_gpu = HardwareManager.Hardware.FirstOrDefault(
-			h => h.HardwareType == HardwareType.GpuAmd ||
-			h.HardwareType == HardwareType.GpuNvidia ||
-            h.HardwareType == HardwareType.GpuIntel
-		);
-	}
+    public GpuLoadSensor(
+        int? updateInterval = null, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName,
+        string? id = default, 
+        string? advancedSettings = default) : 
+        base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings)
+    {
+        _gpu = HardwareManager.Hardware.FirstOrDefault(
+            h => h.HardwareType is HardwareType.GpuAmd or HardwareType.GpuNvidia or HardwareType.GpuIntel
+        );
+    }
 
-	public override DiscoveryConfigModel GetAutoDiscoveryConfig()
-	{
-		if (Variables.MqttManager == null)
-			return null;
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
+    {
+        if (Variables.MqttManager == null)
+            return null;
 
-		var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
-		if (deviceConfig == null)
-			return null;
+        var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
+        if (deviceConfig == null)
+            return null;
 
-		return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel()
-		{
-			EntityName = EntityName,
-			Name = Name,
-			Unique_id = Id,
-			Device = deviceConfig,
-			State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
-			Unit_of_measurement = "%",
+        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
+        {
+            EntityName = EntityName,
+            Name = Name,
+            Unique_id = Id,
+            Device = deviceConfig,
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            Unit_of_measurement = "%",
             State_class = "measurement",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
-		});
-	}
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
+        });
+    }
 
-	public override string GetState()
-	{
-		if (_gpu == null)
-			return null;
+    public override string? GetState()
+    {
+        if (_gpu == null)
+            return null;
 
-		_gpu.Update();
+        _gpu.Update();
 
-		var sensor = _gpu.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Load);
+        var sensor = _gpu.Sensors.FirstOrDefault(s => s.SensorType == SensorType.Load);
 
-		if (sensor?.Value == null)
-			return null;
+        return sensor?.Value?.ToString("#.##", CultureInfo.InvariantCulture);
+    }
 
-		return sensor.Value.HasValue ? sensor.Value.Value.ToString("#.##", CultureInfo.InvariantCulture) : null;
-	}
-
-	public override string GetAttributes() => string.Empty;
+    public override string GetAttributes() => string.Empty;
 }

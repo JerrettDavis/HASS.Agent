@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using HASS.Agent.Shared.Enums;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using Serilog;
@@ -22,13 +20,18 @@ public class KeyCommand : AbstractCommand
         
     public VirtualKeyShort KeyCode { get; set; }
 
-    public KeyCommand(VirtualKeyShort keyCode, string entityName = DefaultName, string name = DefaultName, CommandEntityType entityType = CommandEntityType.Switch, string id = default) : base(entityName ?? DefaultName, name ?? null, entityType, id)
+    public KeyCommand(
+        VirtualKeyShort keyCode, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        CommandEntityType entityType = CommandEntityType.Switch, 
+        string? id = default) : base(entityName ?? DefaultName, name ?? null, entityType, id)
     {
         KeyCode = keyCode;
         State = "OFF";
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
