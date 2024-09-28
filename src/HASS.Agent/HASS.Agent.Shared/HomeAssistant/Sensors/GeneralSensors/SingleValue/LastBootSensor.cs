@@ -13,9 +13,22 @@ public class LastBootSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "lastboot";
 
-    public LastBootSensor(int? updateInterval = 10, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings) { }
+    public LastBootSensor(
+        int? updateInterval = 10,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default,
+        string? advancedSettings = default) :
+        base(
+            entityName ?? DefaultName,
+            name ?? null,
+            updateInterval ?? 10,
+            id,
+            advancedSettings: advancedSettings)
+    {
+    }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
@@ -28,14 +41,17 @@ public class LastBootSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             Icon = "mdi:clock-time-three-outline",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability",
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability",
             Device_class = "timestamp"
         });
     }
 
-    public override string GetState() => (DateTime.Now - TimeSpan.FromMilliseconds(GetTickCount64())).ToTimeZoneString();
+    public override string GetState() =>
+        (DateTime.Now - TimeSpan.FromMilliseconds(GetTickCount64())).ToTimeZoneString();
 
     public override string GetAttributes() => string.Empty;
 

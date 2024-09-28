@@ -43,7 +43,7 @@ public class InternalCommand : AbstractCommand
         State = "OFF";
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 

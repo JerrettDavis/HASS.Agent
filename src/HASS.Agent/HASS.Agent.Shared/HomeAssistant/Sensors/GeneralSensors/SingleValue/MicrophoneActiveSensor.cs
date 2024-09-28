@@ -11,21 +11,33 @@ public class MicrophoneActiveSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "microphoneactive";
 
-    public MicrophoneActiveSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings)
+    public MicrophoneActiveSensor(
+        int? updateInterval = null, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string? id = default, 
+        string? advancedSettings = default) : 
+        base(
+            entityName ?? DefaultName,
+            name ?? null, 
+            updateInterval ?? 10, 
+            id, 
+            advancedSettings: advancedSettings)
     {
         Domain = "binary_sensor";
     }
 
     public override string GetState() => IsMicrophoneInUse() ? "ON" : "OFF";
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null) return null;
 
-        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(new SensorDiscoveryConfigModel
+        return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(
+            new SensorDiscoveryConfigModel
         {
             EntityName = EntityName,
             Name = Name,
@@ -62,7 +74,7 @@ public class MicrophoneActiveSensor : AbstractSingleValueSensor
         return false;
     }
 
-    private static bool CheckRegForMicrophoneInUse(RegistryKey key)
+    private static bool CheckRegForMicrophoneInUse(RegistryKey? key)
     {
         if (key == null) return false;
 
@@ -71,12 +83,12 @@ public class MicrophoneActiveSensor : AbstractSingleValueSensor
             // NonPackaged has multiple subkeys
             if (subKeyName == "NonPackaged")
             {
-                using var nonpackagedkey = key.OpenSubKey(subKeyName);
-                if (nonpackagedkey == null) continue;
+                using var nonpackagedKey = key.OpenSubKey(subKeyName);
+                if (nonpackagedKey == null) continue;
 
-                foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
+                foreach (var nonpackagedSubKeyName in nonpackagedKey.GetSubKeyNames())
                 {
-                    using var subKey = nonpackagedkey.OpenSubKey(nonpackagedSubKeyName);
+                    using var subKey = nonpackagedKey.OpenSubKey(nonpackagedSubKeyName);
                     if (subKey == null || !subKey.GetValueNames().Contains("LastUsedTimeStop")) continue;
 
                     var endTime = subKey.GetValue("LastUsedTimeStop") is long

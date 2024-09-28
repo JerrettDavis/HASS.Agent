@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using HASS.Agent.Shared.Models.HomeAssistant;
 
@@ -13,16 +12,29 @@ public class ProcessActiveSensor : AbstractSingleValueSensor
     private const string DefaultName = "processactive";
     public string ProcessName { get; protected set; }
 
-    public ProcessActiveSensor(string processName, int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings)
+    public ProcessActiveSensor(
+        string processName,
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default,
+        string? advancedSettings = default) :
+        base(
+            entityName ?? DefaultName,
+            name ?? null,
+            updateInterval ?? 10,
+            id,
+            advancedSettings: advancedSettings)
     {
         ProcessName = processName;
 
         // remove common extensions
         var procLc = ProcessName.ToLower();
-        if (procLc.EndsWith(".exe") || procLc.EndsWith(".cmd") || procLc.EndsWith(".dll")) ProcessName = ProcessName[..^4];
+        if (procLc.EndsWith(".exe") || procLc.EndsWith(".cmd") || procLc.EndsWith(".dll"))
+            ProcessName = ProcessName[..^4];
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
@@ -35,10 +47,12 @@ public class ProcessActiveSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             State_class = "measurement",
             Icon = "mdi:file-eye-outline",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability"
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability"
         });
     }
 
@@ -49,7 +63,7 @@ public class ProcessActiveSensor : AbstractSingleValueSensor
         var instanceCount = procs.Any() ? procs.Length : 0;
 
         // dispose all objects
-        foreach (var proc in procs) proc?.Dispose();
+        foreach (var proc in procs) proc.Dispose();
 
         // done
         return instanceCount.ToString();

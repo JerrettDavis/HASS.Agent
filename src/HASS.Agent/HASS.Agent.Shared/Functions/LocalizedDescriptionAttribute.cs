@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Resources;
-using System.Text;
 
 namespace HASS.Agent.Shared.Functions;
 
@@ -36,22 +33,25 @@ public static class EnumExtensions
     public static string GetLocalizedDescription(this Enum enumValue)
     {
         var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+        var attributes = (DescriptionAttribute[]?)fieldInfo?
+            .GetCustomAttributes(typeof(DescriptionAttribute), false) ?? [];
 
-        var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-        return attributes.Length > 0 ? attributes[0].Description : enumValue.ToString();
+        return attributes.Length > 0
+            ? attributes[0].Description
+            : enumValue.ToString();
     }
 
-    public static (int key, string description) GetLocalizedDescriptionAndKey(this Enum enumValue)
+    public static (int key, string description) GetLocalizedDescriptionAndKey(
+        this Enum enumValue)
     {
         var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
-
-        var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-        var description = attributes.Length > 0 ? attributes[0].Description : enumValue.ToString();
-
+        var attributes = (DescriptionAttribute[]?)fieldInfo?
+            .GetCustomAttributes(typeof(DescriptionAttribute), false) ?? [];
+        var description = attributes.Length > 0
+            ? attributes[0].Description
+            : enumValue.ToString();
         var enumIndex = Array.IndexOf(Enum.GetValues(enumValue.GetType()), enumValue);
-        var key = (int)Enum.GetValues(enumValue.GetType()).GetValue(enumIndex);
+        var key = (int?)Enum.GetValues(enumValue.GetType()).GetValue(enumIndex) ?? default(int);
 
         return (key, description);
     }

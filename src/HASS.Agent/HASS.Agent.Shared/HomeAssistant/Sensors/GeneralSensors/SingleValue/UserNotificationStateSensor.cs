@@ -7,13 +7,18 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 /// <summary>
 /// Sensor indicating the current Windows notifications state
 /// </summary>
-public class UserNotificationStateSensor : AbstractSingleValueSensor
+public class UserNotificationStateSensor(
+    int? updateInterval = null,
+    string? entityName = UserNotificationStateSensor.DefaultName,
+    string? name = UserNotificationStateSensor.DefaultName,
+    string? id = default,
+    string? advancedSettings = default)
+    : AbstractSingleValueSensor(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id,
+        advancedSettings: advancedSettings)
 {
     private const string DefaultName = "notificationstate";
 
-    public UserNotificationStateSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings) { }
-
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
@@ -39,7 +44,7 @@ public class UserNotificationStateSensor : AbstractSingleValueSensor
 
     public UserNotificationState GetStateEnum()
     {
-        SHQueryUserNotificationState(out var state);
+        _ = SHQueryUserNotificationState(out var state);
         return state;
     }
 

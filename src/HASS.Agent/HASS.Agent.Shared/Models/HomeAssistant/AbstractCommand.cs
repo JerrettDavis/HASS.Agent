@@ -27,7 +27,7 @@ public abstract class AbstractCommand : AbstractDiscoverable
             ? Guid.NewGuid().ToString() : id;
         EntityName = entityName;
         Name = name;
-        Domain = entityType.GetEnumMemberValue();
+        Domain = entityType.GetEnumMemberValue() ?? "switch";
         EntityType = entityType;
     }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using HASS.Agent.Shared.Extensions;
 using HASS.Agent.Shared.Functions;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using Microsoft.Win32;
@@ -10,28 +11,36 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 /// <summary>
 /// Sensor indicating whether the microphone is in use
 /// </summary>
-public class MicrophoneProcessSensor : AbstractSingleValueSensor
+public class MicrophoneProcessSensor(
+    int? updateInterval = null,
+    string? entityName = MicrophoneProcessSensor.DefaultName,
+    string? name = MicrophoneProcessSensor.DefaultName,
+    string? id = default,
+    string? advancedSettings = default)
+    : AbstractSingleValueSensor(
+        entityName ?? DefaultName,
+        name ?? null,
+        updateInterval ?? 10,
+        id,
+        true,
+        advancedSettings: advancedSettings)
 {
     private const string DefaultName = "microphoneprocess";
 
     private const string _lastUsedTimeStop = "LastUsedTimeStop";
-    private const string _regKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone";
-    
-    public MicrophoneProcessSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, true, advancedSettings: advancedSettings)
-    {
-        //
-    }
+
+    private const string _regKey =
+        @"SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone";
+
 
     private readonly Dictionary<string, string> _processes = new();
 
     private string _attributes = string.Empty;
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null)
-        {
             return null;
-        }
 
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null)
@@ -45,11 +54,14 @@ public class MicrophoneProcessSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             State_class = "measurement",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability",
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability",
             Icon = "mdi:microphone",
-            Json_attributes_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/attributes"
+            Json_attributes_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/attributes"
         };
 
         return AutoDiscoveryConfigModel ?? SetAutoDiscoveryConfigModel(model);
@@ -60,74 +72,63 @@ public class MicrophoneProcessSensor : AbstractSingleValueSensor
         _processes.Clear();
 
         // first local machine
-        using (var key = Registry.LocalMachine.OpenSubKey(_regKey))
-        {
-            CheckRegForMicrophoneInUse(key);
-        }
+        using var localMachineKey = Registry.LocalMachine.OpenSubKey(_regKey);
+        CheckRegForMicrophoneInUse(localMachineKey);
 
         // then current user
-        using (var key = Registry.CurrentUser.OpenSubKey(_regKey))
-        {
-            CheckRegForMicrophoneInUse(key);
-        }
+        using var currentUserKey = Registry.CurrentUser.OpenSubKey(_regKey);
+        CheckRegForMicrophoneInUse(currentUserKey);
 
         // add processes as attributes
-        _attributes = _processes.Count > 0 ? JsonConvert.SerializeObject(_processes, Formatting.Indented) : "{}";
+        _attributes = _processes.Count > 0 
+            ? JsonConvert.SerializeObject(_processes, Formatting.Indented) 
+            : "{}";
 
         // return the count
         return _processes.Count.ToString();
     }
 
-    private void CheckRegForMicrophoneInUse(RegistryKey key)
+    private void CheckRegForMicrophoneInUse(RegistryKey? key)
     {
-        if (key == null)
-        {
-            return;
-        }
 
-        foreach (var subKeyName in key.GetSubKeyNames())
+        key?
+            .GetSubKeyNames()
+            .ForEach(ProcessSubKey);
+
+        return;
+        
+        void ProcessSubKey(string subKeyName)
         {
-            // NonPackaged has multiple subkeys
             if (subKeyName == "NonPackaged")
             {
-                using var nonpackagedkey = key.OpenSubKey(subKeyName);
-                if (nonpackagedkey == null)
-                {
-                    continue;
-                }
-
-                foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
-                {
-                    using var subKey = nonpackagedkey.OpenSubKey(nonpackagedSubKeyName);
-                    if (subKey == null || !subKey.GetValueNames().Contains(_lastUsedTimeStop))
-                    {
-                        continue;
-                    }
-
-                    var endTime = subKey.GetValue(_lastUsedTimeStop) is long
-                        ? (long)(subKey.GetValue(_lastUsedTimeStop) ?? -1)
-                        : -1;
-
-                    if (endTime <= 0)
-                    {
-                        _processes[SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name)] = "on";
-                    }
-                }
+                using var nonPackagedKey = key.OpenSubKey(subKeyName);
+                ProcessSubKeys(nonPackagedKey);
             }
             else
             {
                 using var subKey = key.OpenSubKey(subKeyName);
-                if (subKey == null || !subKey.GetValueNames().Contains(_lastUsedTimeStop))
-                {
-                    continue;
-                }
-
-                var endTime = subKey.GetValue(_lastUsedTimeStop) is long ? (long)(subKey.GetValue(_lastUsedTimeStop) ?? -1) : -1;
-                if (endTime <= 0)
-                {
-                    _processes[SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name)] = "on";
-                }
+                CheckSubKey(subKey);
             }
+        }
+
+        void ProcessSubKeys(RegistryKey? parentKey)
+        {
+            if (parentKey == null) return;
+
+            parentKey.GetSubKeyNames()
+                .Select(parentKey.OpenSubKey)
+                .ToList()
+                .ForEach(CheckSubKey);
+        }
+
+        void CheckSubKey(RegistryKey? subKey)
+        {
+            if (subKey == null || !subKey.GetValueNames().Contains(_lastUsedTimeStop)) return;
+
+            var endTime = subKey.GetValue(_lastUsedTimeStop) is long time ? time : -1;
+            if (endTime > 0) return;
+            var processName = SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name);
+            _processes[processName] = "on";
         }
     }
 

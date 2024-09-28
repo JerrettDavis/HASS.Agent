@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using HASS.Agent.Shared.Enums;
 using HASS.Agent.Shared.Extensions;
 using HASS.Agent.Shared.Managers;
 using HASS.Agent.Shared.Models.HomeAssistant;
@@ -23,13 +24,26 @@ public class LastActiveSensor : AbstractSingleValueSensor
     public bool ApplyRounding { get; private set; }
     public int Round { get; private set; }
 
-    public LastActiveSensor(bool updateOnResume, int? updateOnResumeTimeWindow, int? updateInterval = 10, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings)
+    public LastActiveSensor(
+        bool updateOnResume, 
+        int? updateOnResumeTimeWindow, 
+        int? updateInterval = 10, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string? id = default, 
+        string? advancedSettings = default) : 
+        base(
+            entityName ?? DefaultName, 
+            name ?? null, 
+            updateInterval ?? 10, 
+            id, 
+            advancedSettings: advancedSettings)
     {
         ApplyRounding = updateOnResume;
         Round = updateOnResumeTimeWindow ?? 30;
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null)
             return null;
@@ -57,7 +71,7 @@ public class LastActiveSensor : AbstractSingleValueSensor
 
         if (ApplyRounding)
         {
-            if (SharedSystemStateManager.LastEventOccurrence.TryGetValue(Enums.SystemStateEvent.Resume, out var lastWakeEventDate) // was there a wake event
+            if (SharedSystemStateManager.LastEventOccurrence.TryGetValue(SystemStateEvent.Resume, out var lastWakeEventDate) // was there a wake event
                 && DateTime.Compare(lastInput, lastWakeEventDate) < 0 // was the last input before the last wake event
                 && (DateTime.Now - lastWakeEventDate).TotalSeconds < Round) // are we within the time window
             {
@@ -104,6 +118,7 @@ public class LastActiveSensor : AbstractSingleValueSensor
     // ReSharper disable once InconsistentNaming
     private struct LASTINPUTINFO
     {
+        [SuppressMessage("ReSharper", "UnusedMember.Local")] 
         private static readonly int SizeOf = Marshal.SizeOf(typeof(LASTINPUTINFO));
 
         [MarshalAs(UnmanagedType.U4)]

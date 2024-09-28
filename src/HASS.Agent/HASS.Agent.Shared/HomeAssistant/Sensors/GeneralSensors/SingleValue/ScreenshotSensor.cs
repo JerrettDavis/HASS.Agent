@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using Serilog;
-using System.Windows.Forms;
-using System.Xml.Linq;
-using System.Runtime.InteropServices;
-using System.Drawing.Imaging;
-using System.Text.RegularExpressions;
-using Windows.Graphics.Display;
 
 namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
+
+[SuppressMessage("ReSharper", "UnusedMember.Local")]
 public class ScreenshotSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "screenshot";
@@ -27,13 +22,25 @@ public class ScreenshotSensor : AbstractSingleValueSensor
 
     public int ScreenIndex;
 
-    public ScreenshotSensor(string screenIndex = "0", int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 15, id, advancedSettings: advancedSettings)
+    public ScreenshotSensor(
+        string screenIndex = "0",
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default,
+        string? advancedSettings = default) :
+        base(
+            entityName ?? DefaultName,
+            name ?? null,
+            updateInterval ?? 15,
+            id,
+            advancedSettings: advancedSettings)
     {
         ScreenIndex = int.TryParse(screenIndex, out var parsedScreenIndex) ? parsedScreenIndex : 0;
         Domain = "camera";
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null)
             return null;
@@ -50,9 +57,11 @@ public class ScreenshotSensor : AbstractSingleValueSensor
             Device = deviceConfig,
             Image_encoding = "b64",
             Icon = "mdi:camera",
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             Topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability"
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/sensor/{deviceConfig.Name}/availability"
         });
     }
 
@@ -77,9 +86,9 @@ public class ScreenshotSensor : AbstractSingleValueSensor
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "[SCREENSHOT] Internal Error capturing screen {index}, {ex}", ex.Message);
+            Log.Error(ex, "[SCREENSHOT] Internal Error capturing screen {index}, {ex}", screenIndex, ex.Message);
 
-            return Array.Empty<byte>();
+            return [];
         }
     }
 
@@ -111,8 +120,10 @@ public class ScreenshotSensor : AbstractSingleValueSensor
     {
         private const int CCHDEVICENAME = 0x20;
         private const int CCHFORMNAME = 0x20;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 0x20)]
         public string dmDeviceName;
+
         public short dmSpecVersion;
         public short dmDriverVersion;
         public short dmSize;
@@ -127,8 +138,10 @@ public class ScreenshotSensor : AbstractSingleValueSensor
         public short dmYResolution;
         public short dmTTOption;
         public short dmCollate;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 0x20)]
         public string dmFormName;
+
         public short dmLogPixels;
         public int dmBitsPerPel;
         public int dmPelsWidth;

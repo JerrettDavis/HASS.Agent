@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace HASS.Agent.Shared.Managers.Audio;
+
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class AudioSession
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
     public string Application { get; set; } = string.Empty;
     public string PlaybackDevice { get; set; } = string.Empty;
     public bool Muted { get; set; }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
 using HASS.Agent.Shared.Managers;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using Newtonsoft.Json;
-using Serilog;
 
 namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 
@@ -18,9 +13,22 @@ public class LoggedUsersSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "loggedusers";
 
-    public LoggedUsersSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 30, id, advancedSettings: advancedSettings) { }
+    public LoggedUsersSensor(
+        int? updateInterval = null,
+        string? entityName = DefaultName,
+        string? name = DefaultName,
+        string? id = default,
+        string? advancedSettings = default) :
+        base(
+            entityName ?? DefaultName,
+            name ?? null,
+            updateInterval ?? 30,
+            id,
+            advancedSettings: advancedSettings)
+    {
+    }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
@@ -33,9 +41,11 @@ public class LoggedUsersSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             Icon = "mdi:account-group",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
         });
     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using HASS.Agent.Shared.Enums;
 using HASS.Agent.Shared.Models.Config.Old;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ namespace HASS.Agent.Shared.Models.Config;
 /// <summary>
 /// Storable version of sensor objects
 /// </summary>
+[SuppressMessage("ReSharper", "RedundantDefaultMemberInitializer")]
 public class ConfiguredSensor
 {
     [JsonConverter(typeof(StringEnumConverter))]
@@ -17,7 +19,7 @@ public class ConfiguredSensor
     public string Name { get; set; } = string.Empty;
     public int? UpdateInterval { get; set; }
     public string Query { get; set; } = string.Empty;
-    public string Scope { get; set; }
+    public string? Scope { get; set; }
     public string WindowName { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string Counter { get; set; } = string.Empty;
@@ -28,9 +30,8 @@ public class ConfiguredSensor
     public int? Round { get; set; }
     public string AdvancedSettings { get; set; } = string.Empty;
 
-    public static ConfiguredSensor FromLAB02(ConfiguredSensorLAB02 oldConfig)
-    {
-        return new ConfiguredSensor
+    public static ConfiguredSensor FromLAB02(ConfiguredSensorLAB02 oldConfig) =>
+        new()
         {
             Type = oldConfig.Type,
             Id = oldConfig.Id,
@@ -46,11 +47,9 @@ public class ConfiguredSensor
             Round = oldConfig.Round,
             EntityName = oldConfig.Name,
         };
-    }
 
-    public static ConfiguredSensor From2023Beta(ConfiguredSensor2023Beta oldConfig)
-    {
-        return new ConfiguredSensor
+    public static ConfiguredSensor From2023Beta(ConfiguredSensor2023Beta oldConfig) =>
+        new()
         {
             Type = oldConfig.Type,
             Id = oldConfig.Id,
@@ -66,5 +65,4 @@ public class ConfiguredSensor
             Round = oldConfig.Round,
             EntityName = oldConfig.EntityName,
         };
-    }
 }

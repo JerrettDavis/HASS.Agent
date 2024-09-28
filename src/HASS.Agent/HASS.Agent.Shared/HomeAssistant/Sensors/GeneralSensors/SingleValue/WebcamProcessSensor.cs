@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using HASS.Agent.Shared.Extensions;
 using HASS.Agent.Shared.Functions;
 using HASS.Agent.Shared.Models.HomeAssistant;
 using Microsoft.Win32;
@@ -10,24 +11,32 @@ namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 /// <summary>
 /// Sensor indicating whether the webcam is in use
 /// </summary>
-public class WebcamProcessSensor : AbstractSingleValueSensor
+public class WebcamProcessSensor(
+    int? updateInterval = null,
+    string? entityName = WebcamProcessSensor.DefaultName,
+    string? name = WebcamProcessSensor.DefaultName,
+    string? id = default,
+    string? advancedSettings = default)
+    : AbstractSingleValueSensor(
+        entityName ?? DefaultName, 
+        name ?? null, 
+        updateInterval ?? 10, 
+        id, 
+        true,
+        advancedSettings: advancedSettings)
 {
     private const string DefaultName = "webcamprocess";
-
-    public WebcamProcessSensor(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, true, advancedSettings: advancedSettings)
-    {
-        //
-    }
 
     private readonly Dictionary<string, string> _processes = new();
 
     private string _attributes = string.Empty;
 
     public override string GetState() => WebcamProcess();
-    public void SetAttributes(string value) => _attributes = string.IsNullOrWhiteSpace(value) ? "{}" : value;
+    public void SetAttributes(string value) => 
+        _attributes = string.IsNullOrWhiteSpace(value) ? "{}" : value;
     public override string GetAttributes() => _attributes;
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
@@ -61,62 +70,58 @@ public class WebcamProcessSensor : AbstractSingleValueSensor
         _processes.Clear();
 
         // first local machine
-        using (var key = Registry.LocalMachine.OpenSubKey(regKey))
-        {
-            CheckRegForWebcamInUse(key);
-        }
+        using var localMachineKey = Registry.LocalMachine.OpenSubKey(regKey);
+        CheckRegForWebcamInUse(localMachineKey);
 
         // then current user
-        using (var key = Registry.CurrentUser.OpenSubKey(regKey))
-        {
-            CheckRegForWebcamInUse(key);
-        }
+        using var currentUserKey = Registry.CurrentUser.OpenSubKey(regKey);
+        CheckRegForWebcamInUse(currentUserKey);
 
         // add processes as attributes
-        if (_processes.Count > 0) _attributes = JsonConvert.SerializeObject(_processes, Formatting.Indented);
+        if (_processes.Count > 0) 
+            _attributes = JsonConvert.SerializeObject(_processes, Formatting.Indented);
 
         // return the count
         return _processes.Count.ToString();
     }
 
-    private void CheckRegForWebcamInUse(RegistryKey key)
+    private void CheckRegForWebcamInUse(RegistryKey? key)
     {
-        if (key == null) return;
+        key?.GetSubKeyNames()
+            .Select(key.OpenSubKey)
+            .Where(subKey => subKey != null)
+            .ForEach(ProcessKey);
+        
+        return;
 
-        foreach (var subKeyName in key.GetSubKeyNames())
+        void ProcessKey(RegistryKey? subKey)
         {
-            // NonPackaged has multiple subkeys
-            if (subKeyName == "NonPackaged")
-            {
-                using var nonpackagedkey = key.OpenSubKey(subKeyName);
-                if (nonpackagedkey == null) continue;
+            if (subKey == null) return;
 
-                foreach (var nonpackagedSubKeyName in nonpackagedkey.GetSubKeyNames())
-                {
-                    using var subKey = nonpackagedkey.OpenSubKey(nonpackagedSubKeyName);
-                    if (subKey == null || !subKey.GetValueNames().Contains("LastUsedTimeStop")) continue;
+            if (subKey.Name.Contains("NonPackaged"))
+                ProcessSubKeys(subKey);
+            else if (IsWebcamInUse(subKey)) 
+                AddProcess(subKey);
+        }
 
-                    var endTime = subKey.GetValue("LastUsedTimeStop") is long
-                        ? (long)(subKey.GetValue("LastUsedTimeStop") ?? -1)
-                        : -1;
+        void ProcessSubKeys(RegistryKey nonpackagedKey)
+        {
+            nonpackagedKey.GetSubKeyNames()
+                .Select(nonpackagedKey.OpenSubKey)
+                .Where(subKey => subKey != null && IsWebcamInUse(subKey))
+                .ForEach(AddProcess!);
+        }
 
-                    if (endTime <= 0)
-                    {
-                        _processes.Add(SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name), "on");
-                    }
-                }
-            }
-            else
-            {
-                using var subKey = key.OpenSubKey(subKeyName);
-                if (subKey == null || !subKey.GetValueNames().Contains("LastUsedTimeStop")) continue;
+        bool IsWebcamInUse(RegistryKey subKey)
+        {
+            var lastUsedTimeStop = subKey.GetValue("LastUsedTimeStop");
+            return lastUsedTimeStop is long and <= 0;
+        }
 
-                var endTime = subKey.GetValue("LastUsedTimeStop") is long ? (long)(subKey.GetValue("LastUsedTimeStop") ?? -1) : -1;
-                if (endTime <= 0)
-                {
-                    _processes.Add(SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name), "on");
-                }
-            }
+        void AddProcess(RegistryKey subKey)
+        {
+            var appName = SharedHelperFunctions.ParseRegWebcamMicApplicationName(subKey.Name);
+            _processes.Add(appName, "on");
         }
     }
 }

@@ -7,7 +7,6 @@ using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -54,7 +53,7 @@ public static class SharedHelperFunctions
         var shellWindow = NativeMethods.GetShellWindow();
         var windows = new Dictionary<IntPtr, string>();
 
-        NativeMethods.EnumWindows(delegate (IntPtr hWnd, int lParam)
+        NativeMethods.EnumWindows(delegate (IntPtr hWnd, int _)
         {
             if (hWnd == shellWindow) return true;
             if (!NativeMethods.IsWindowVisible(hWnd)) return true;
@@ -106,11 +105,11 @@ public static class SharedHelperFunctions
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public static string GetCategory(this Enum value)
+    public static string? GetCategory(this Enum value)
     {
         var fieldInfo = value.GetType().GetField(value.ToString());
         if (fieldInfo == null) return null;
-        var attribute = (CategoryAttribute)fieldInfo.GetCustomAttribute(typeof(CategoryAttribute));
+        var attribute = (CategoryAttribute?)fieldInfo.GetCustomAttribute(typeof(CategoryAttribute));
         return attribute?.Category ?? "?";
     }
 

@@ -14,7 +14,8 @@ namespace HASS.Agent.Shared.Functions;
 public static class PerformanceCounters
 {
     [DllImport("pdh.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    private static extern uint PdhLookupPerfNameByIndex(string szMachineName, uint dwNameIndex, StringBuilder szNameBuffer, ref uint pcchNameBufferSize);
+    private static extern uint PdhLookupPerfNameByIndex(string? szMachineName, uint dwNameIndex,
+        StringBuilder szNameBuffer, ref uint pcchNameBufferSize);
 
     /// <summary>
     /// Retrieve the counter based on its English category and -name
@@ -22,7 +23,7 @@ public static class PerformanceCounters
     /// <param name="englishCategoryName"></param>
     /// <param name="englishCounterName"></param>
     /// <returns></returns>
-    public static PerformanceCounter GetSingleInstanceCounter(string englishCategoryName, string englishCounterName)
+    public static PerformanceCounter? GetSingleInstanceCounter(string englishCategoryName, string englishCounterName)
     {
         try
         {
@@ -37,7 +38,7 @@ public static class PerformanceCounters
         const string perfCountersKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib\009";
 
         // get list of counters & check them
-        if (!(Registry.GetValue(perfCountersKey, "Counter", null) is string[] englishNames)) return null;
+        if (Registry.GetValue(perfCountersKey, "Counter", null) is not string[] englishNames) return null;
         if (!englishNames.Any()) return null;
 
         // filter the null values
@@ -65,7 +66,7 @@ public static class PerformanceCounters
     /// <param name="categoryName"></param>
     /// <param name="counterName"></param>
     /// <returns></returns>
-    private static PerformanceCounter GetCounterIfExists(string categoryName, string counterName)
+    private static PerformanceCounter? GetCounterIfExists(string? categoryName, string? counterName)
     {
         try
         {
@@ -83,7 +84,6 @@ public static class PerformanceCounters
     /// <param name="englishNames"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-
     private static int FindNameId(IReadOnlyList<string> englishNames, string name)
     {
         // englishNames contains alternately id and name, so only check odd lines
@@ -103,7 +103,7 @@ public static class PerformanceCounters
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    private static string GetNameByIndex(int id)
+    private static string? GetNameByIndex(int id)
     {
         if (id < 0) return null;
 

@@ -10,9 +10,19 @@ public class LastSystemStateChangeSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "lastsystemstatechange";
 
-    public LastSystemStateChangeSensor(int? updateInterval = 10, string entityName = DefaultName, string name = DefaultName, string id = default, string advancedSettings = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings) { }
+    public LastSystemStateChangeSensor(
+        int? updateInterval = 10, 
+        string? entityName = DefaultName, 
+        string? name = DefaultName, 
+        string? id = default, 
+        string? advancedSettings = default) : 
+        base(
+            entityName ?? DefaultName, 
+            name ?? null, updateInterval ?? 10, 
+            id, 
+            advancedSettings: advancedSettings) { }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (Variables.MqttManager == null) return null;
 
