@@ -16,65 +16,105 @@ public class DataTypeIntSensor : AbstractSingleValueSensor
     private int _value;
     private string _attributes = string.Empty;
 
-    public DataTypeIntSensor(int? updateInterval, string entityName, string name, string id, string deviceClass, string stateClass, string icon, string unitOfMeasurement, string multiValueSensorName, bool useAttributes = false) : base(entityName, name, updateInterval ?? 30, id, useAttributes)
+    public DataTypeIntSensor(
+        int? updateInterval,
+        string entityName,
+        string name,
+        string id,
+        string deviceClass,
+        string stateClass,
+        string icon,
+        string unitOfMeasurement,
+        string multiValueSensorName,
+        bool useAttributes = false
+    ) : base(
+        entityName,
+        name,
+        updateInterval ?? 30,
+        id,
+        useAttributes
+    )
     {
         TopicName = multiValueSensorName;
-
         _deviceClass = deviceClass;
         _stateClass = stateClass;
         _unitOfMeasurement = unitOfMeasurement;
         _icon = icon;
-
         ObjectId = id;
     }
 
     [Obsolete("Deprecated due to HA 2023.8 MQTT changes in favor of method specifying entityName")]
-    public DataTypeIntSensor(int? updateInterval, string name, string id, string deviceClass, string icon, string unitOfMeasurement, string multiValueSensorName, bool useAttributes = false) : base(name, name, updateInterval ?? 30, id, useAttributes)
+    public DataTypeIntSensor(
+        int? updateInterval,
+        string name,
+        string id,
+        string deviceClass,
+        string icon,
+        string unitOfMeasurement,
+        string multiValueSensorName,
+        bool useAttributes = false
+    ) : base(
+        name,
+        name,
+        updateInterval ?? 30,
+        id,
+        useAttributes
+    )
     {
         TopicName = multiValueSensorName;
-
         _deviceClass = deviceClass;
         _unitOfMeasurement = unitOfMeasurement;
         _icon = icon;
-
+        _stateClass = string.Empty;
         ObjectId = id;
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
-        if (AutoDiscoveryConfigModel != null) return AutoDiscoveryConfigModel;
+        if (AutoDiscoveryConfigModel != null)
+            return AutoDiscoveryConfigModel;
 
-        if (Variables.MqttManager == null) return null;
+        var mqttManager = Variables.MqttManager;
+        var deviceConfig = mqttManager?.GetDeviceConfigModel();
 
-        var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
-        if (deviceConfig == null) return null;
+        if (deviceConfig == null)
+            return null;
 
-        var model = new SensorDiscoveryConfigModel
-        {
-            EntityName = EntityName,
-            Name = Name,
-            Unique_id = Id,
-            Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/state",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
-        };
+        return SetAutoDiscoveryConfigModel(
+            new SensorDiscoveryConfigModel
+            {
+                EntityName = EntityName,
+                Name = Name,
+                Unique_id = Id,
+                Device = deviceConfig,
+                State_topic = GenerateTopic("state"),
+                Availability_topic = GenerateTopic("availability", isAvailability: true),
+                Json_attributes_topic = UseAttributes
+                    ? GenerateTopic("attributes")
+                    : null,
+                Device_class = GetValueIfNotEmpty(_deviceClass),
+                State_class = GetValueIfNotEmpty(_stateClass),
+                Unit_of_measurement = GetValueIfNotEmpty(_unitOfMeasurement),
+                Icon = GetValueIfNotEmpty(_icon)
+            }
+        );
 
-        if (UseAttributes) model.Json_attributes_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/attributes";
+        // Local function to generate the topic string
+        string GenerateTopic(string topicType, bool isAvailability = false) =>
+            isAvailability
+                ? $"{mqttManager?.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
+                : $"{mqttManager?.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/" +
+                  $"{TopicName}/{ObjectId}/{topicType}";
 
-        if (!string.IsNullOrWhiteSpace(_deviceClass))
-            model.Device_class = _deviceClass;
-        if (!string.IsNullOrWhiteSpace(_stateClass))
-            model.State_class = _stateClass;
-        if (!string.IsNullOrWhiteSpace(_unitOfMeasurement))
-            model.Unit_of_measurement = _unitOfMeasurement;
-        if (!string.IsNullOrWhiteSpace(_icon))
-            model.Icon = _icon;
-
-        return SetAutoDiscoveryConfigModel(model);
+        // Local function to check and return values or null
+        string? GetValueIfNotEmpty(string value) =>
+            !string.IsNullOrWhiteSpace(value) ? value : null;
     }
 
     public void SetState(int value) => _value = value;
-    public void SetAttributes(string value) => _attributes = string.IsNullOrWhiteSpace(value) ? "{}" : value;
+
+    public void SetAttributes(string value) =>
+        _attributes = string.IsNullOrWhiteSpace(value) ? "{}" : value;
 
     public override string GetState() => _value.ToString();
     public override string GetAttributes() => _attributes;

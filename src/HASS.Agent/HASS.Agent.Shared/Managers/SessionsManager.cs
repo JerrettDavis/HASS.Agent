@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using Cassia;
 using HASS.Agent.Shared.Functions;
 using Serilog;
+
+#pragma warning disable CS0169 // Field is never used
 
 namespace HASS.Agent.Shared.Managers;
 
@@ -22,99 +24,101 @@ internal static class SessionsManager
     /// <returns></returns>
     internal static IEnumerable<string> GetLoggedUsers(bool activeOnly = false)
     {
-        var loggedInUsers = new List<string>();
-
         var serverHandle = WTSOpenServer(Environment.MachineName);
         var sessionInfoPtr = IntPtr.Zero;
 
         try
         {
-            var device = $"{Environment.MachineName.ToUpper()}$";
             var sessionCount = 0;
             var retVal = WTSEnumerateSessions(serverHandle, 0, 1, ref sessionInfoPtr, ref sessionCount);
             var dataSize = Marshal.SizeOf(typeof(Cassia.Impl.WTS_SESSION_INFO));
             var currentSession = sessionInfoPtr;
 
-            if (retVal == 0)
-            {
-                // nothing found, or error'd out
-                return GetLoggedUsersBackup();
-            }
-
-            for (var i = 0; i < sessionCount; i++)
-            {
-                var sessionInfo = (Cassia.Impl.WTS_SESSION_INFO)Marshal.PtrToStructure(currentSession, typeof(Cassia.Impl.WTS_SESSION_INFO))!;
-                currentSession += dataSize;
-
-                if (activeOnly)
-                {
-                    // we only want active ones
-                    if (sessionInfo.State != ConnectionState.Active) continue;
-                }
-
-                WTSQuerySessionInformation(serverHandle, sessionInfo.SessionID, WTS_INFO_CLASS.WTSUserName, out var userPtr, out _);
-
-                try
-                {
-                    var user = Marshal.PtrToStringAnsi(userPtr)?.Trim();
-                    if (string.IsNullOrEmpty(user)) continue;
-                    if (SharedHelperFunctions.UserIsSystemOrServiceAccount(user)) continue;
-
-                    if (!loggedInUsers.Contains(user)) loggedInUsers.Add(user);
-                }
-                finally
-                {
-                    WTSFreeMemory(userPtr);
-                }
-            }
-
-            return loggedInUsers;
+            return retVal == 0
+                // nothing found or errored out
+                ? GetLoggedUsersBackup()
+                : EnumerateSessions(sessionCount, currentSession, dataSize);
         }
         catch (Exception ex)
         {
             Log.Fatal(ex, "[ACTIVEUSERS] Error while fetching logged users: {err}", ex.Message);
-            return loggedInUsers;
+            return [];
         }
         finally
         {
             WTSFreeMemory(sessionInfoPtr);
             WTSCloseServer(serverHandle);
         }
+
+        IEnumerable<string> EnumerateSessions(
+            int sessionCount,
+            IntPtr currentSession,
+            int dataSize)
+        {
+            return Enumerable.Range(0, sessionCount)
+                .Select(_ =>
+                {
+                    var sessionInfo =
+                        (Cassia.Impl.WTS_SESSION_INFO)Marshal.PtrToStructure(currentSession,
+                            typeof(Cassia.Impl.WTS_SESSION_INFO))!;
+                    currentSession += dataSize;
+                    return sessionInfo;
+                })
+                .Where(sessionInfo => !activeOnly || sessionInfo.State == ConnectionState.Active)
+                .SelectMany(sessionInfo => GetUserFromSession(sessionInfo.SessionID))
+                .Distinct(); // avoid adding duplicates
+        }
+
+        IEnumerable<string> GetUserFromSession(int sessionId)
+        {
+            WTSQuerySessionInformation(serverHandle, sessionId, WTS_INFO_CLASS.WTSUserName, out var userPtr, out _);
+
+            try
+            {
+                var user = Marshal.PtrToStringAnsi(userPtr)?.Trim();
+                if (string.IsNullOrEmpty(user) || SharedHelperFunctions.UserIsSystemOrServiceAccount(user))
+                {
+                    yield break;
+                }
+
+                yield return user;
+            }
+            finally
+            {
+                WTSFreeMemory(userPtr);
+            }
+        }
     }
+
 
     private static IEnumerable<string> GetLoggedUsersBackup()
     {
-        var loggedInUsers = new List<string>();
-
         try
         {
-            var explorers = Process.GetProcessesByName("explorer");
-            foreach (var explorer in explorers)
-            {
-                try
+            return Process.GetProcessesByName("explorer")
+                .Select(explorer =>
                 {
-                    var user = SharedHelperFunctions.GetProcessOwner(explorer, false);
-                    if (string.IsNullOrEmpty(user)) continue;
-                    if (SharedHelperFunctions.UserIsSystemOrServiceAccount(user)) continue;
-
-                    if (!loggedInUsers.Contains(user)) loggedInUsers.Add(user);
-                }
-                finally
-                {
-                    explorer?.Dispose();
-                }
-            }
-
-            return loggedInUsers;
+                    using (explorer) // Automatically dispose the process
+                    {
+                        var user = SharedHelperFunctions.GetProcessOwner(explorer, false);
+                        return string.IsNullOrEmpty(user) || 
+                               SharedHelperFunctions.UserIsSystemOrServiceAccount(user)
+                            ? null
+                            : user;
+                    }
+                })
+                .Where(user => user != null)
+                .Distinct()!; // Ensure distinct users, and exclude null values
         }
         catch (Exception ex)
         {
             Log.Fatal(ex, "[ACTIVEUSERS] Error while fetching logged users: {err}", ex.Message);
-            return loggedInUsers;
+            return [];
         }
     }
 
     #region IMPORTS
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
     private readonly struct SystemPowerCapabilities
@@ -137,12 +141,21 @@ internal static class SessionsManager
         private readonly byte ProcessorMinThrottle;
         private readonly byte ProcessorMaxThrottle;
         [MarshalAs(UnmanagedType.U1)] public readonly bool FastSystemS4;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)] public readonly byte[] spare2;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+        public readonly byte[] spare2;
+
         [MarshalAs(UnmanagedType.U1)] public readonly bool DiskSpinDown;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)] public readonly byte[] spare3;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
+        public readonly byte[] spare3;
+
         [MarshalAs(UnmanagedType.U1)] public readonly bool SystemBatteriesPresent;
         [MarshalAs(UnmanagedType.U1)] public readonly bool BatteriesAreShortTerm;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)] public readonly BatteryReportingScale[] BatteryScale;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+        public readonly BatteryReportingScale[] BatteryScale;
+
         private readonly SystemPowerState AcOnLineWake;
         private readonly SystemPowerState SoftLidWake;
         private readonly SystemPowerState RtcWake;
@@ -225,8 +238,7 @@ internal static class SessionsManager
     {
         private readonly int SessionID;
 
-        [MarshalAs(UnmanagedType.LPStr)]
-        private readonly string pWinStationName;
+        [MarshalAs(UnmanagedType.LPStr)] private readonly string pWinStationName;
 
         private readonly WTS_CONNECTSTATE_CLASS State;
     }
@@ -235,6 +247,7 @@ internal static class SessionsManager
     private readonly struct WTS_CLIENT_ADDRESS
     {
         private readonly int iAddressFamily;
+
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
         private readonly byte[] bAddress;
     }
@@ -273,5 +286,6 @@ internal static class SessionsManager
         WTSDown,
         WTSInit
     }
+
     #endregion
 }

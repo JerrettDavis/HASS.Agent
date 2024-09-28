@@ -21,12 +21,12 @@ public static class SensorExtensions
 
     //TODO: remove after tests
 
-    /// <summary>
-    /// Returns the name of the sensortype, based on the provided devicename
-    /// </summary>
-    /// <param name="sensorType"></param>
-    /// <param name="deviceName"></param>
-    /// <returns></returns>
+    //// <summary>
+    //// Returns the name of the sensortype, based on the provided devicename
+    //// </summary>
+    //// <param name="sensorType"></param>
+    //// <param name="deviceName"></param>
+    //// <returns></returns>
 /*        public static string GetSensorName(this SensorType sensorType, string deviceName)
         {
             var (_, name) = sensorType.GetLocalizedDescriptionAndKey();

@@ -15,7 +15,20 @@ public class DataTypeBoolSensor : AbstractSingleValueSensor
     private bool _value;
     private string _attributes = string.Empty;
 
-    public DataTypeBoolSensor(int? updateInterval, string entityName, string name, string id, string deviceClass, string icon, string multiValueSensorName, bool useAttributes = false) : base(entityName, name, updateInterval ?? 30, id, useAttributes)
+    public DataTypeBoolSensor(
+        int? updateInterval,
+        string entityName,
+        string name,
+        string id,
+        string deviceClass,
+        string icon,
+        string multiValueSensorName, bool useAttributes = false) :
+        base(
+            entityName,
+            name,
+            updateInterval ?? 30,
+            id,
+            useAttributes)
     {
         TopicName = multiValueSensorName;
 
@@ -26,7 +39,9 @@ public class DataTypeBoolSensor : AbstractSingleValueSensor
     }
 
     [Obsolete("Deprecated due to HA 2023.8 MQTT changes in favor of method specifying entityName")]
-    public DataTypeBoolSensor(int? updateInterval, string name, string id, string deviceClass, string icon, string multiValueSensorName, bool useAttributes = false) : base(name, name, updateInterval ?? 30, id, useAttributes)
+    public DataTypeBoolSensor(int? updateInterval, string name, string id, string deviceClass, string icon,
+        string multiValueSensorName, bool useAttributes = false) : base(name, name, updateInterval ?? 30, id,
+        useAttributes)
     {
         TopicName = multiValueSensorName;
 
@@ -36,7 +51,7 @@ public class DataTypeBoolSensor : AbstractSingleValueSensor
         ObjectId = id;
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
         if (AutoDiscoveryConfigModel != null) return AutoDiscoveryConfigModel;
 
@@ -51,11 +66,15 @@ public class DataTypeBoolSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/state",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/state",
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability"
         };
 
-        if (UseAttributes) model.Json_attributes_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/attributes";
+        if (UseAttributes)
+            model.Json_attributes_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{TopicName}/{ObjectId}/attributes";
 
         if (!string.IsNullOrWhiteSpace(_deviceClass)) model.Device_class = _deviceClass;
         if (!string.IsNullOrWhiteSpace(_icon)) model.Icon = _icon;

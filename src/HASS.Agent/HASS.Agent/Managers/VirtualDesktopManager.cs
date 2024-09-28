@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Serilog;
 using WindowsDesktop;
 
@@ -28,7 +22,8 @@ internal static class VirtualDesktopManager
         catch
         {
             Initialized = false;
-            Log.Error("[VIRTDESKT] Error initializing Virtual Desktop Manager, your Windows version may be unsupported"); //TODO(Amadeo): add link to documentation explaining the issue.
+            Log.Error(
+                "[VIRTDESKT] Error initializing Virtual Desktop Manager, your Windows version may be unsupported"); //TODO(Amadeo): add link to documentation explaining the issue.
         }
 
         return Initialized;
@@ -64,13 +59,15 @@ internal static class VirtualDesktopManager
             var targetDesktop = VirtualDesktop.GetDesktops().FirstOrDefault(d => d.Id == virtualDesktopGuid);
             if (targetDesktop == null)
             {
-                Log.Warning("[VIRTDESKT] Unable to find virtual desktop with id: {virtualDesktopId}", virtualDesktopGuid.ToString());
+                Log.Warning("[VIRTDESKT] Unable to find virtual desktop with id: {virtualDesktopId}",
+                    virtualDesktopGuid.ToString());
                 return;
             }
 
             if (VirtualDesktop.Current == targetDesktop)
             {
-                Log.Information("[VIRTDESKT] Target virtual desktop '{virtualDesktopId}' is already active", virtualDesktopGuid.ToString());
+                Log.Information("[VIRTDESKT] Target virtual desktop '{virtualDesktopId}' is already active",
+                    virtualDesktopGuid.ToString());
                 return;
             }
 
@@ -82,7 +79,7 @@ internal static class VirtualDesktopManager
         }
     }
 
-    internal static VirtualDesktop GetCurrentDesktop()
+    internal static VirtualDesktop? GetCurrentDesktop()
     {
         if (!Initialized)
         {
@@ -103,7 +100,8 @@ internal static class VirtualDesktopManager
 
     private static string GetDesktopNameFromRegistry(string id)
     {
-        var registryPath = $"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{id}}}";
+        var registryPath =
+            $"HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VirtualDesktops\\Desktops\\{{{id}}}";
         return (Registry.GetValue(registryPath, "Name", string.Empty) as string) ?? string.Empty;
     }
 

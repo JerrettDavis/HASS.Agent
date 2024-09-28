@@ -87,7 +87,7 @@ public class DisplaySensors : AbstractMultiValueSensor
         primaryDisplaySensor.SetState(primaryDisplayStr);
         AddUpdateSensor(primaryDisplayId, primaryDisplaySensor);
 
-        var monitors = Monitors.All?.ToList() ?? new List<Monitors>();
+        var monitors = Monitors.All;
 
         foreach (var display in displays)
         {
@@ -107,7 +107,7 @@ public class DisplaySensors : AbstractMultiValueSensor
 
             if (monitors.Any(x => x.Name == name))
             {
-                var monitor = monitors.Find(x => x.Name == name);
+                var monitor = monitors.First(x => x.Name == name);
                 resolution = 
                     $"{monitor.PhysicalBounds.Width}x{monitor.PhysicalBounds.Height}";
                 width = monitor.PhysicalBounds.Width;

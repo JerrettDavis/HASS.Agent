@@ -1,16 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
-using System.Windows.Threading;
-using HASS.Agent.Managers;
-using HASS.Agent.Resources.Localization;
+﻿using HASS.Agent.Managers;
 using HASS.Agent.Shared.Models.HomeAssistant;
-using Microsoft.Win32;
 using Newtonsoft.Json;
-using Windows.Foundation.Metadata;
-using WindowsDesktop;
-using static HASS.Agent.Functions.NativeMethods;
+
+// ReSharper disable CheckNamespace
 
 namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.SingleValue;
 
@@ -26,18 +18,24 @@ public class ActiveDesktopSensor : AbstractSingleValueSensor
     private string _desktopName = string.Empty;
     private string _attributes = string.Empty;
 
-    public ActiveDesktopSensor(int? updateInterval = null, string entityName = _defaultName, string name = _defaultName, string id = default, string advancedSettings = default) : base(entityName ?? _defaultName, name ?? null, updateInterval ?? 15, id, advancedSettings: advancedSettings)
+    public ActiveDesktopSensor(
+        int? updateInterval = null,
+        string? entityName = _defaultName,
+        string? name = _defaultName,
+        string? id = default,
+        string? advancedSettings = default) :
+        base(
+            entityName ?? _defaultName,
+            name ?? null,
+            updateInterval ?? 15, 
+            id, 
+            advancedSettings: advancedSettings)
     {
         UseAttributes = true;
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig()
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig()
     {
-        if (Variables.MqttManager == null)
-        {
-            return null;
-        }
-
         var deviceConfig = Variables.MqttManager.GetDeviceConfigModel();
         if (deviceConfig == null)
         {
@@ -50,10 +48,13 @@ public class ActiveDesktopSensor : AbstractSingleValueSensor
             Name = Name,
             Unique_id = Id,
             Device = deviceConfig,
-            State_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
+            State_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/state",
             Icon = "mdi:monitor",
-            Availability_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability",
-            Json_attributes_topic = $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/attributes"
+            Availability_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/availability",
+            Json_attributes_topic =
+                $"{Variables.MqttManager.MqttDiscoveryPrefix()}/{Domain}/{deviceConfig.Name}/{ObjectId}/attributes"
         });
     }
 

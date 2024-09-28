@@ -1860,4 +1860,8 @@
     <Protobuf Include="Service\Protos\hassagentsatellite.proto" GrpcServices="Client" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="HomeAssistant\Commands\CustomCommands\" />
+  </ItemGroup>
+
 </Project>

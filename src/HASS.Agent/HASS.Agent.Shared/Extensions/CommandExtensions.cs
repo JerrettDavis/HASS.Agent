@@ -21,12 +21,12 @@ public static class CommandExtensions
 
     //TODO: remove after tests
 
-    /// <summary>
-    /// Returns the name of the commandtype, based on the provided devicename
-    /// </summary>
-    /// <param name="commandType"></param>
-    /// <param name="deviceName"></param>
-    /// <returns></returns>
+    //// <summary>
+    //// Returns the name of the commandtype, based on the provided devicename
+    //// </summary>
+    //// <param name="commandType"></param>
+    //// <param name="deviceName"></param>
+    //// <returns></returns>
     /*        public static string GetCommandName(this CommandType commandType, string deviceName)
             {
                 var (_, name) = commandType.GetLocalizedDescriptionAndKey();

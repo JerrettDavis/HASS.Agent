@@ -1,18 +1,15 @@
-﻿using System.Diagnostics;
-using System.Globalization;
-using System.Printing;
+﻿using System.Printing;
 using HASS.Agent.Models.Internal;
 using HASS.Agent.Shared.Functions;
 using HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.MultiValue.DataTypes;
 using HASS.Agent.Shared.Models.HomeAssistant;
-using HASS.Agent.Shared.Models.Internal;
 using Newtonsoft.Json;
 using Serilog;
 
 namespace HASS.Agent.HomeAssistant.Sensors.GeneralSensors.MultiValue;
 
 /// <summary>
-/// Multivalue sensor containing printer-related info
+/// Multivalued sensor containing printer-related info
 /// </summary>
 public class PrintersSensors : AbstractMultiValueSensor
 {
@@ -24,20 +21,14 @@ public class PrintersSensors : AbstractMultiValueSensor
 
     public sealed override Dictionary<string, AbstractSingleValueSensor> Sensors { get; protected set; } = new();
 
-    public PrintersSensors(int? updateInterval = null, string entityName = DefaultName, string name = DefaultName, string id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 20, id)
+    public PrintersSensors(int? updateInterval = null, string? entityName = DefaultName, string? name = DefaultName, string? id = default) : base(entityName ?? DefaultName, name ?? null, updateInterval ?? 20, id)
     {
         _updateInterval = updateInterval ?? 20;
 
         UpdateSensorValues();
     }
 
-    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor)
-    {
-        if (!Sensors.ContainsKey(sensorId))
-            Sensors.Add(sensorId, sensor);
-        else
-            Sensors[sensorId] = sensor;
-    }
+    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor) => Sensors[sensorId] = sensor;
 
     public sealed override void UpdateSensorValues()
     {
