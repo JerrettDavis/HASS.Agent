@@ -18,6 +18,7 @@ namespace HASS.Agent.Shared.Managers;
 /// Performs commandline-related actions
 /// </summary>
 [SuppressMessage("ReSharper", "InconsistentNaming")]
+[SuppressMessage("ReSharper", "RedundantAssignment")]
 public static class CommandLineManager
 {
     /// <summary>
@@ -323,8 +324,8 @@ public static class CommandLineManager
     /// <exception cref="Win32Exception"></exception>
     public static void LaunchAsLowIntegrity(string commandLine)
     {
-        SafeTokenHandle hToken = null;
-        SafeTokenHandle hNewToken = null;
+        SafeTokenHandle? hToken = null;
+        SafeTokenHandle? hNewToken = null;
         var pIntegritySid = IntPtr.Zero;
         var pTokenInfo = IntPtr.Zero;
         var si = new STARTUPINFO();
@@ -683,6 +684,7 @@ internal struct PROCESS_INFORMATION
 /// <summary>
 /// Represents a wrapper class for a token handle.
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedMember.Local")]
 internal class SafeTokenHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     private SafeTokenHandle()
@@ -1037,14 +1039,14 @@ internal class NativeMethod
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool CreateProcessAsUser(
         SafeTokenHandle hToken,
-        string applicationName,
+        string? applicationName,
         string commandLine,
         IntPtr pProcessAttributes,
         IntPtr pThreadAttributes,
         bool bInheritHandles,
         uint dwCreationFlags,
         IntPtr pEnvironment,
-        string currentDirectory,
+        string? currentDirectory,
         ref STARTUPINFO startupInfo,
         out PROCESS_INFORMATION processInformation);
 
@@ -1065,6 +1067,7 @@ internal class NativeMethod
 /// <summary>
 /// Well-known folder paths
 /// </summary>
+[SuppressMessage("ReSharper", "RedundantAssignment")]
 internal class KnownFolder
 {
     private static readonly Guid LocalAppDataGuid = new("F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
@@ -1088,8 +1091,8 @@ internal class KnownFolder
         try
         {
             var hr = SHGetKnownFolderPath(rfid, 0, IntPtr.Zero, out pPath);
-            if (hr != 0) throw Marshal.GetExceptionForHR(hr);
-            path = Marshal.PtrToStringUni(pPath);
+            if (hr != 0) throw Marshal.GetExceptionForHR(hr) ?? new Win32Exception(hr);
+            path = Marshal.PtrToStringUni(pPath) ?? string.Empty;
         }
         finally
         {

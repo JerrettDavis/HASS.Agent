@@ -225,13 +225,15 @@ public static class SessionInfo
 
             for (var i = 0; i < sessionCount; i++)
             {
-                var si = (WTS_SESSION_INFO)Marshal.PtrToStructure(current, typeof(WTS_SESSION_INFO));
+                var si = (WTS_SESSION_INFO?)Marshal.PtrToStructure(current, typeof(WTS_SESSION_INFO));
                 current += arrayElementSize;
 
+                if (si == null) continue;
+                
                 // we only want the active session
-                if (si.State != WTS_CONNECTSTATE_CLASS.WTSActive) continue;
+                if (si.Value.State != WTS_CONNECTSTATE_CLASS.WTSActive) continue;
 
-                activeSessionId = si.SessionID;
+                activeSessionId = si.Value.SessionID;
                 break;
             }
 

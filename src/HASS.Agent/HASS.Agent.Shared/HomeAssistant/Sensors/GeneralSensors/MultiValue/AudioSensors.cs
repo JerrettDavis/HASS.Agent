@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using HASS.Agent.Shared.Functions;
 using HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.MultiValue.DataTypes;
-using HASS.Agent.Shared.Managers;
 using HASS.Agent.Shared.Managers.Audio;
 using HASS.Agent.Shared.Models.HomeAssistant;
-using HASS.Agent.Shared.Models.Internal;
-using HidSharp;
 using Newtonsoft.Json;
 using Serilog;
 
 namespace HASS.Agent.Shared.HomeAssistant.Sensors.GeneralSensors.MultiValue;
 
 /// <summary>
-/// Multivalue sensor containing audio-related info
+/// Multivalued sensor containing audio-related info
 /// </summary>
 public class AudioSensors : AbstractMultiValueSensor
 {
@@ -38,17 +33,11 @@ public class AudioSensors : AbstractMultiValueSensor
         UpdateSensorValues();
     }
 
-    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor)
-    {
-        if (!Sensors.ContainsKey(sensorId))
-            Sensors.Add(sensorId, sensor);
-        else
-            Sensors[sensorId] = sensor;
-    }
+    private void AddUpdateSensor(string sensorId, AbstractSingleValueSensor sensor) => Sensors[sensorId] = sensor;
 
-    private void HandleAudioOutputSensors(IEnumerable<AudioDevice> outputDevices, string parentSensorSafeName)
+    private void HandleAudioOutputSensors(IList<AudioDevice> outputDevices, string parentSensorSafeName)
     {
-        var outputDevice = outputDevices.Where(d => d.Default).FirstOrDefault();
+        var outputDevice = outputDevices.FirstOrDefault(d => d.Default);
         if (outputDevice == null)
             return;
 
@@ -108,9 +97,11 @@ public class AudioSensors : AbstractMultiValueSensor
         AddUpdateSensor(audioOutputDevicesId, audioOutputDevicesSensor);
     }
 
-    private void HandleAudioInputSensors(IEnumerable<AudioDevice> inputDevices, string parentSensorSafeName)
+    private void HandleAudioInputSensors(
+        IList<AudioDevice> inputDevices, 
+        string parentSensorSafeName)
     {
-        var inputDevice = inputDevices.Where(d => d.Default).FirstOrDefault();
+        var inputDevice = inputDevices.FirstOrDefault(d => d.Default);
         if (inputDevice == null)
             return;
 
@@ -152,13 +143,13 @@ public class AudioSensors : AbstractMultiValueSensor
         AddUpdateSensor(audioInputDevicesId, audioInputDevicesSensor);
     }
 
-    public override sealed void UpdateSensorValues()
+    public sealed override void UpdateSensorValues()
     {
         try
         {
             var audioDevices = AudioManager.GetDevices();
-            var outputDevices = audioDevices.Where(d => d.Type == DeviceType.Output);
-            var inputDevices = audioDevices.Where(d => d.Type == DeviceType.Input);
+            var outputDevices = audioDevices.Where(d => d.Type == DeviceType.Output).ToList();
+            var inputDevices = audioDevices.Where(d => d.Type == DeviceType.Input).ToList();
 
             var parentSensorSafeName = SharedHelperFunctions.GetSafeValue(EntityName);
 
@@ -179,5 +170,5 @@ public class AudioSensors : AbstractMultiValueSensor
         }
     }
 
-    public override DiscoveryConfigModel GetAutoDiscoveryConfig() => null;
+    public override DiscoveryConfigModel? GetAutoDiscoveryConfig() => null;
 }

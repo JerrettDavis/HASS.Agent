@@ -10,6 +10,9 @@ using Serilog;
 
 namespace HASS.Agent.Shared.Managers;
 
+[SuppressMessage("ReSharper", "UnusedMember.Local")]
+[SuppressMessage("ReSharper", "UnusedType.Local")]
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class SessionsManager
 {
     /// <summary>
@@ -40,7 +43,7 @@ internal static class SessionsManager
 
             for (var i = 0; i < sessionCount; i++)
             {
-                var sessionInfo = (Cassia.Impl.WTS_SESSION_INFO)Marshal.PtrToStructure(currentSession, typeof(Cassia.Impl.WTS_SESSION_INFO));
+                var sessionInfo = (Cassia.Impl.WTS_SESSION_INFO)Marshal.PtrToStructure(currentSession, typeof(Cassia.Impl.WTS_SESSION_INFO))!;
                 currentSession += dataSize;
 
                 if (activeOnly)
@@ -154,6 +157,7 @@ internal static class SessionsManager
         private ulong Capacity;
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum SystemPowerState
     {
         PowerSystemUnspecified = 0,
@@ -176,11 +180,13 @@ internal static class SessionsManager
     private static extern bool GetTokenInformation(IntPtr tokenHandle, TokenInformationClass tokenInformationClass,
         IntPtr tokenInformation, int tokenInformationLength, out int returnLength);
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum TokenInformationClass
     {
         TokenElevationType
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private enum TokenElevationType
     {
         TokenElevationTypeDefault = 1,

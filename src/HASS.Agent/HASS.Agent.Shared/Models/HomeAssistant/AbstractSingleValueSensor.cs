@@ -110,7 +110,7 @@ public abstract class AbstractSingleValueSensor : AbstractDiscoverable
             }
 
             // fetch the autodiscovery config
-            var autoDiscoConfig = (SensorDiscoveryConfigModel)GetAutoDiscoveryConfig();
+            var autoDiscoConfig = (SensorDiscoveryConfigModel?)GetAutoDiscoveryConfig();
             if (autoDiscoConfig == null)
                 return;
 

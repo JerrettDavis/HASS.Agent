@@ -13,7 +13,7 @@ public class PerformanceCounterSensor : AbstractSingleValueSensor
 {
     private const string DefaultName = "performancecountersensor";
 
-    protected PerformanceCounter Counter;
+    protected PerformanceCounter? Counter;
 
     public string CategoryName { get; private set; }
     public string CounterName { get; private set; }
@@ -23,7 +23,7 @@ public class PerformanceCounterSensor : AbstractSingleValueSensor
     public int? Round { get; private set; }
 
     public PerformanceCounterSensor(string categoryName, string counterName, string instanceName,
-        bool applyRounding = false, int? round = null, int? updateInterval = null, string entityName = DefaultName,
+        bool applyRounding = false, int? round = null, int? updateInterval = null, string? entityName = DefaultName,
         string? name = DefaultName, string? id = default, string? advancedSettings = default) : base(
         entityName ?? DefaultName, name ?? null, updateInterval ?? 10, id, advancedSettings: advancedSettings)
     {
@@ -66,17 +66,17 @@ public class PerformanceCounterSensor : AbstractSingleValueSensor
 
     public override string GetState()
     {
-        var nextVal = Counter.NextValue();
+        var nextVal = Counter?.NextValue();
 
         // optionally apply rounding
         if (ApplyRounding && Round != null &&
-            double.TryParse(nextVal.ToString(CultureInfo.CurrentCulture), out var dblValue))
+            double.TryParse(nextVal?.ToString(CultureInfo.CurrentCulture), out var dblValue))
         {
             return Math.Round(dblValue, (int)Round).ToString(CultureInfo.CurrentCulture);
         }
 
         // done
-        return Math.Round(nextVal).ToString(CultureInfo.CurrentCulture);
+        return Math.Round(nextVal ?? 0).ToString(CultureInfo.CurrentCulture);
     }
 
     public override string GetAttributes() => string.Empty;
